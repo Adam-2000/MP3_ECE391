@@ -10,4 +10,10 @@
 #define KEY_DATAPORT    0x60        // Keyboard passes in data through this port
 #define NULL_KEY	    '\0'        // Some keys are defined to be NULL with value '\0'
 
+/* init the keyboard */
+extern void init_keyboard();
+
+/* Keyboard handler */
+extern void keyboard_handler();
+
 #endif /* _KEYBOARD_H */
