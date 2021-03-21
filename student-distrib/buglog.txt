@@ -1,0 +1,31 @@
+2021Sp ECE391 MP3 Buglog
+
+Date:   2021.03.20 - 2021.05.??
+Author: Group 28
+Member: Ma Zicheng      zicheng5
+        Huang Tianhao   th21
+        Chen Yize       yizec2
+        Chen Shengjian  sc54
+
+Flow:
+
+Bug #1
+Date: 2021.03.21
+Handler: Ma Zicheng
+Detail: Although the initialization of PIC is properly set, the inb(keyboard_dataport)
+        always passes in the same value of 124, no matter what key is pressed.
+Solution: I wrongly distinguish the difference between IDT index and keyboard's dataport,
+          so firstly the macro KEY_DATAPORT is set to 0x21, and after changing it to
+          0x60, things weng right.
+
+Bug #2
+Date: 2021.
+Handler: 
+Detail: 
+Solution: 
+
+Bug #3
+Date: 2021.
+Handler: 
+Detail: 
+Solution: 
