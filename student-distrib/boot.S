@@ -26,7 +26,7 @@ _start:
 continue:
     # Load the GDTR
     lgdt gdt_desc
-    # initialize LDT
+    # initialize LDT, the registers should be saved for further use (entry)
     pushl %eax
     pushl %ebx
     pushfl
