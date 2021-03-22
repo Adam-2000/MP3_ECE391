@@ -1,20 +1,23 @@
 #include "paging.h"
+#include "x86_desc.h"
+#include "types.h"
+#include "lib.h"
+#include "paging_enable.h"
 
 
 
 paging_dir_entry_t page_directory[NUM_ENTRY] __attribute__((aligned(ALINED_4K)));
 paging_table_entry_t page_table[NUM_ENTRY] __attribute__((aligned(ALINED_4K)));
+
 /*
  * paging_init
  *   DESCRIPTION: init the page directory entry and page 
  *                table entry for paging
  *   INPUTS: none
- *   OUTPUTS: none
+ *   OUTPUTS: page_directory
  *   RETURN VALUE: none
  */
-
 void paging_init(){
-
     int i;  //index
     //set the first 4MB as 4kB pages
     page_directory[0].present = 1;
@@ -25,7 +28,9 @@ void paging_init(){
     page_directory[0].access = 0;
     page_directory[0].reserved = 0;
     page_directory[0].page_size = 0; // set size to 0 as 4KB pages
-    page_directory[0].table_addr = (int)page_table;
+    // because when we use 20 bit table base address, we would add 12 zero at right
+    // thus we need to shift to right 12 bit
+    page_directory[0].table_addr = (int)page_table>>PDE_RESERVE_FOR4KB; 
 
     //set the 4MB-8MB as one 4MB page
     page_directory[1].present = 1;
