@@ -4,7 +4,10 @@
 
 #include "keyboard.h"
 
-static uint8_t keymap[KEY_NUM] =      // possible key contents
+
+static unsigned char pressed_key = 0;              // char to receive the keyboard input data
+static unsigned char echo = 0;                     // key echo to display on screen
+static unsigned char keymap[KEY_NUM] =             // possible key contents
 	{'\0', '\0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\0', '\0',
 	 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\0', '\0', 'a', 's',
 	 'd', 'f', 'g', 'h', 'j', 'k', 'l' , ';', '\'', '`', '\0', '\\', 'z', 'x', 'c', 'v', 
@@ -30,19 +33,22 @@ void init_keyboard() {
  *	effects:	Handle the keyboard interrup and display corresponding key on screen
  */
 void keyboard_handler(){
-    cli();
-    printf("keyboard yeah\n");
-    uint32_t key_idx = inb(KEY_DATAPORT);
-    uint8_t key_char;
+    uint32_t char_index;
+    char key_char;
 
-    key_idx = inb(KEY_DATAPORT);
-    if (key_idx < KEY_NUM){
-        key_char = keymap[key_idx];
-        printf("keyboard yeah: %c\n", key_char);
+    cli();
+
+    // receive the scancode through keyboard's dataport
+    char_index = inb(KEY_DATAPORT);
+    if(char_index < KEY_NUM){
+        // echo the corresponding key from the array
+        key_char = keymap[char_index];
+        // check for NULL key
         if(key_char != '\0'){
             putc(key_char);
         }
     }
+
     send_eoi(IRQ_KEYBOARD);
     sti();
 }

@@ -6,6 +6,7 @@ Member: Ma Zicheng      zicheng5
         Huang Tianhao   th21
         Chen Yize       yizec2
         Chen Shengjian  sc54
+Latest update: 2021.03.22
 
 Flow:
 
@@ -19,13 +20,34 @@ Solution: I wrongly distinguish the difference between IDT index and keyboard's 
           0x60, things weng right.
 
 Bug #2
-Date: 2021.
-Handler: 
-Detail: 
-Solution: 
+Date: 2021.03.21
+Handler: Huang Tianhao
+Detail: the table base address of the first PDE can not be correct assigned to the target 
+        31-12bit in PDE
+Solution: Because when we use 20 bit table base address, we would add 12 zero at right to 
+          make it as 32-bit variable. Thus we need to shift to right 12 bits when we store it, then after 
+          adding 12 zero, the value of the first page table would be correct.
 
 Bug #3
-Date: 2021.
-Handler: 
-Detail: 
-Solution: 
+Date: 2021.03.21
+Handler: Chen Yize
+Detail: 'General protection' exception when making system call
+Solution: Bug came about as a result of the exception handler's not popping all pushed register values, fixed
+          by changing the order and number of pop and push
+
+Bug #4 (big bug)
+Date: 2021.3.22
+Handler: Chen Yize, Chen Shengjian, Ma Zicheng, Huang Tianhao
+Detail: IDT, PIC and RTC are all normally initialized, but the PIC can not respond to any interrupt
+        by providing corresponding handler
+Solution: Detailed principle is still unclear, but we fixed the bug after hours by deleting the extra sti()
+          between an existing cli_and_save and restore_flags, then changed them back into cti() and sti().
+          Actually EFLAGS save is unnecessary, and coder has been blamed for that.
+
+Bug #5
+Date: 2021.03.22
+Handler: Chen Shengjian
+Detail: When implementing the rtc_handler, we can not directly have the test's output on image.
+Solution: Firstly we need to change the order of rtc_eoi & interrupt_test. Small bugs fits here is also the or
+	gate with REGB_OFFSET with RTC_NMI (non-maskable Interrupt). Besides, in preset.s file that 
+	we need to modify and make the function name to be settled.
