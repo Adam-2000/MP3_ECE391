@@ -102,13 +102,55 @@ int paging_test_exist() {
 int paging_test_null(){
 	TEST_HEADER;
 	char result;
+	// choose one condition to test
+    char* pointer = (char*)0xB7FFF;    //point to a null mem at upper boundary of vedio mem	
+	result = *pointer;
 
-    char* pointer = (char*)0x00000;           //pointing to a null mem
-    result = *pointer;
+	pointer = (char*)0xB9000;    //point to a null mem at lower boundary of vedio mem	
+	result = *pointer;
 
-	return PASS;                             // if no exception not occure, pass
+	pointer = (char*)0x3FFFFF;  //point to a null mem at upper boundary of kernal mem	
+	result = *pointer;
+
+	pointer = (char*)0x800000;  //point to a null mem at lower boundary of kernal mem	
+	result = *pointer;
+
+	return FAIL;                     // if no exception not occure, pass
 }
 
+
+/* syscall_test
+* give a system call, check whether it is ok
+* Inputs: None
+* Outputs: None
+* Side Effects: Halts the system and displays fault message
+* Coverage: system call
+* Files: idt_handler_preset.S, system_call.c/h
+*/
+int syscall_test(){
+	TEST_HEADER;
+	asm volatile("int $0x80");
+	return PASS;
+}
+
+
+/* devide_zero
+* description: give a system call, check whether it is ok
+* Inputs: None
+* Outputs: None
+* Side Effects: Halts the system and displays fault message
+* Coverage: devide zero
+* Files: exception.c/h
+*/
+int devide_zero(){
+	TEST_HEADER;
+	const int a = 10;
+	const int b = 0;
+	int c;	// let denominator be zero
+	
+	c = a/b;
+	return FAIL;
+}
 
 
 // add more tests here
@@ -116,21 +158,20 @@ int paging_test_null(){
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
-
-
 /* Test suite entry point */
 void launch_tests(){
 	printf("*********************\n");
-	//rtc_test();
 	TEST_OUTPUT("idt_test", idt_test());
 
 	printf("*********************\n");
-
 	TEST_OUTPUT("paging_test_exist", paging_test_exist());	
 
 	printf("*********************\n");
-
 	TEST_OUTPUT("paging_test_null", paging_test_null());
 
-	printf("*********************\n");
+	// printf("*********************\n");
+	// TEST_OUTPUT("syscall_test", syscall_test());
+
+	// printf("*********************\n");
+	// TEST_OUTPUT("devide_zero", devide_zero());
 }
