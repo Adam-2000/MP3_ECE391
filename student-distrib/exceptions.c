@@ -49,8 +49,8 @@ void exception_stack_segment_fault(){
     printf("Exception: stack segment fault");
     while(1);
 }
-void exception_stack_general_protection(){
-    printf("Exception: stack general protection");
+void exception_general_protection(){
+    printf("Exception: general protection");
     while(1);
 }
 void exception_page_fault(){

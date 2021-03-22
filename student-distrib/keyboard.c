@@ -3,14 +3,8 @@
 */
 
 #include "keyboard.h"
-#include "lib.h"
-#include "types.h"
-#include "i8259.h"
-#include "x86_desc.h"
 
-static unsigned char pressed_key = 0;              // char to receive the keyboard input data
-static unsigned char echo = 0;                     // key echo to display on screen
-static unsigned char keymap[KEY_NUM] =      // possible key contents
+static uint8_t keymap[KEY_NUM] =      // possible key contents
 	{'\0', '\0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\0', '\0',
 	 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\0', '\0', 'a', 's',
 	 'd', 'f', 'g', 'h', 'j', 'k', 'l' , ';', '\'', '`', '\0', '\\', 'z', 'x', 'c', 'v', 
@@ -37,23 +31,18 @@ void init_keyboard() {
  */
 void keyboard_handler(){
     cli();
-    while(1){
-        // Check whether the input value is in range for reasonable key
-        if((inb(KEY_DATAPORT) > 0) && (inb(KEY_DATAPORT) < KEY_NUM)){
-            pressed_key = inb(KEY_DATAPORT);
-            break;
+    printf("keyboard yeah\n");
+    uint32_t key_idx = inb(KEY_DATAPORT);
+    uint8_t key_char;
+
+    key_idx = inb(KEY_DATAPORT);
+    if (key_idx < KEY_NUM){
+        key_char = keymap[key_idx];
+        printf("keyboard yeah: %c\n", key_char);
+        if(key_char != '\0'){
+            putc(key_char);
         }
     }
-
-    echo = keymap[pressed_key];
-    // Handle NULL key
-    if(echo == NULL_KEY){
-        send_eoi(IRQ_KEYBOARD);
-        return;
-    } 
-    
-    putc(echo);
-
     send_eoi(IRQ_KEYBOARD);
     sti();
 }

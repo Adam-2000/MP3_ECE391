@@ -1,11 +1,8 @@
 #define ASM 1
 
 #define push_all_reg \
-    pushw $0    ;\
     pushl %fs   ;\
-    pushw $0    ;\
     pushl %es   ;\
-    pushw $0    ;\
     pushl %ds   ;\
     pushl %eax  ;\
     pushl %ebp  ;\
@@ -19,16 +16,13 @@
     popl %ebx   ;\
     popl %ecx   ;\
     popl %edx   ;\
-    pushl %esi  ;\
-    pushl %edi  ;\
+    popl %esi  ;\
+    popl %edi  ;\
     popl %ebp   ;\
     popl %eax   ;\
-    popw %ds    ;\
-    addl $2, %esp   ;\
-    popw %es    ;\
-    addl $2, %esp   ;\
-    popw %fs    ;\
-    addl $2, %esp 
+    popl %ds    ;\
+    popl %es    ;\
+    popl %fs    ;\
 
 #define handlr_1_interrput(name, function)    \
     .globl name                            ;\
@@ -69,9 +63,9 @@ system_call:
     iret
 
 //handlr_1_interrput(timer_chip,      timer_chip_func)
-handlr_1_interrput(keyboard,        keyboard_func)
+handlr_1_interrput(keyboard,        keyboard_handler)
 //handlr_1_interrput(serial_port,     serial_port_func)
-handlr_1_interrput(real_time_clock, real_time_clock_func)
+handlr_1_interrput(real_time_clock, RTC_handler)
 //handlr_1_interrput(eth0,            eth0_func)
 //handlr_1_interrput(PS_2,            PS_2_func)
 //handlr_1_interrput(ide0,            ide0_func)
@@ -88,7 +82,7 @@ handlr_1_exception(double_fault,            exception_double_fault)
 handlr_1_exception(invalid_tss,             exception_invalid_tss)
 handlr_1_exception(segment_not_present,     exception_segment_not_present)
 handlr_1_exception(stack_segment_fault,     exception_stack_segment_fault)
-handlr_1_exception(general_protection,      exception_stack_general_protection)
+handlr_1_exception(general_protection,      exception_general_protection)
 handlr_1_exception(page_fault,              exception_page_fault)
 handlr_1_exception(x87_fpu_floating_point_error, exception_x87_fpu_floating_point_error)
 handlr_1_exception(alignment_check,         exception_alignment_check)
