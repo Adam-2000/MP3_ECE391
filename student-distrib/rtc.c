@@ -1,6 +1,6 @@
 #include "rtc.h"
 #include "lib.h"
-
+#include "i8259.h"
 
 /* void RTC_INIT(void) 
     Inputs: none
@@ -22,7 +22,10 @@ void RTC_INIT(void)
     outb((REGB_OFF | RTC_NMI), PORT_70);
     outb((prev | RTC_PIE), PORT_CMOS);
 
+    /* frequency define */
 
+    
+    sti();
     restore_flags(flags);
 }
 

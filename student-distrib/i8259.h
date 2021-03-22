@@ -10,7 +10,9 @@
 
 /* Ports that each PIC sits on */
 #define MASTER_8259_PORT    0x20
+#define MASTER_8259_DATA    0x21
 #define SLAVE_8259_PORT     0xA0
+#define SLAVE_8259_DATA     0xA1
 
 /* Initialization control words to init each PIC.
  * See the Intel manuals for details on the meaning
@@ -26,6 +28,20 @@
  * the interrupt number and sent out to the PIC
  * to declare the interrupt finished */
 #define EOI                 0x60
+
+
+
+
+/* CSJ's add */
+#define IRQ_MAX             15
+#define IRQ_MIN             0
+#define IRQ_MASTER          7
+#define SM_SELECT           0x02
+#define FF_MASK             0xff
+#define FB_MASK             0xfb
+
+
+
 
 /* Externally-visible functions */
 
