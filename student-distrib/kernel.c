@@ -139,17 +139,9 @@ void entry(unsigned long magic, unsigned long addr) {
     }
 
     /* Init the PIC */
-<<<<<<< HEAD
     i8259_init();
     RTC_INIT();
     init_keyboard(); 
-=======
-    printf("before i8259 okay \n");
-    while(1);
-    //i8259_init();
-    printf("i8259 okay \n");
-    while(1);
->>>>>>> cd7c74f03107ee19baa13d1a82aa280a48ed1d63
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
 

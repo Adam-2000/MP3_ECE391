@@ -156,19 +156,6 @@ int paging_test_null(){
 }
 
 
-/* syscall_test
-* give a system call, check whether it is ok
-* Inputs: None
-* Outputs: None
-* Side Effects: Halts the system and displays fault message
-* Coverage: system call
-* Files: idt_handler_preset.S, system_call.c/h
-*/
-int syscall_test(){
-	TEST_HEADER;
-	asm volatile("int $0x80");
-	return PASS;
-}
 
 
 /* devide_zero

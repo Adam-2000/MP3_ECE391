@@ -51,7 +51,7 @@ void RTC_handler(void)
     /* just read the data */
     inb(PORT_CMOS);
     //rtc_counter++;
-    //test_interrupts();
+    test_interrupts();
     send_eoi(IRQ_RTC_NUM);
 
 }
