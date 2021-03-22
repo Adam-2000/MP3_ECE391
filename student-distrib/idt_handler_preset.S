@@ -69,7 +69,7 @@ system_call:
     iret
 
 //handlr_1_interrput(timer_chip,      timer_chip_func)
-handlr_1_interrput(keyboard,        keyboard_func)
+handlr_1_interrput(keyboard,        keyboard_handler)
 //handlr_1_interrput(serial_port,     serial_port_func)
 handlr_1_interrput(real_time_clock, real_time_clock_func)
 //handlr_1_interrput(eth0,            eth0_func)

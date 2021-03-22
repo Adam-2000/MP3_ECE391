@@ -19,13 +19,16 @@ Solution: I wrongly distinguish the difference between IDT index and keyboard's 
           0x60, things weng right.
 
 Bug #2
-Date: 2021.
-Handler: 
-Detail: 
-Solution: 
+Date: 2021.03.21
+Handler: Huang Tianhao
+Detail: the table base address of the first PDE can not be correct assigned to the target 
+        31-12bit in PDE
+Solution: Because when we use 20 bit table base address, we would add 12 zero at right to 
+          make it as 32-bit variable. Thus we need to shift to right 12 bits when we store it, then after adding 12 zero, the value of the first page table would be correct.
 
 Bug #3
-Date: 2021.
-Handler: 
-Detail: 
+Date: 2021.3.22
+Handler: Chen Yize
+Detail: IDT, PIC and RTC are all normally initialized, but the PIC can not respond to any interrupt
+        by providing corresponding handler, 
 Solution: 

@@ -3,10 +3,7 @@
 */
 
 #include "keyboard.h"
-#include "lib.h"
-#include "types.h"
-#include "i8259.h"
-#include "x86_desc.h"
+
 
 static unsigned char pressed_key = 0;              // char to receive the keyboard input data
 static unsigned char echo = 0;                     // key echo to display on screen
