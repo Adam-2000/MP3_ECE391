@@ -14,6 +14,7 @@
 static inline void assertion_failure(){
 	/* Use exception #15 for assertions, otherwise
 	   reserved by Intel */
+	printf("test fail\n");
 	asm volatile("int $15");
 }
 
@@ -34,19 +35,37 @@ int idt_test(){
 
 	int i;
 	int result = PASS;
-	for (i = 0; i < 10; ++i){
+	for (i = 0; i < 9; ++i){
+		printf("idt entry: %d\n content: 0x%x \n", i, idt[i]);
 		if ((idt[i].offset_15_00 == NULL) && 
 			(idt[i].offset_31_16 == NULL)){
+			printf("oops: idt_test: i = %d\n", i);
 			assertion_failure();
 			result = FAIL;
 		}
+
+
+		
 	}
 
 	return result;
 }
 
 // add more tests here
-
+/* KEY Test - Example
+ * 
+ * Asserts that first 10 IDT entries are not NULL
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: Load IDT, IDT definition
+ * Files: x86_desc.h/S
+ */
+int key_test(){
+	TEST_HEADER;
+	while(1);
+	return PASS;
+}
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
@@ -55,6 +74,6 @@ int idt_test(){
 
 /* Test suite entry point */
 void launch_tests(){
-	TEST_OUTPUT("idt_test", idt_test());
+	TEST_OUTPUT("key_test", key_test());
 	// launch your tests here
 }
