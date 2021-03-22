@@ -41,22 +41,22 @@ void i8259_init(void)
 /* Enable (unmask) the specified IRQ */
 void enable_irq(uint32_t irq_num) 
 {
+    uint8_t bit_choice;
+    uint8_t t_irq;
     /* depending on the irq_num master/slave/none */
     if( (irq_num>=IRQ_MIN) && (irq_num<=IRQ_MASTER) )
     {
         /* master PIC */
-        uint8_t bit_choice = 1 << irq_num;
-        bit_choice ~= bit_choice;
-        master_mask &= bit_choice;
+        bit_choice = (uint8_t) (1 << irq_num);
+        master_mask &= ~bit_choice;
         outb(master_mask, MASTER_8259_DATA);
     }
     else if( (irq_num>IRQ_MASTER) && (irq_num<IRQ_MAX) )
     {
         /* Slave PIC */
-        uint32_t t_irq = irq_num - IRQ_MASTER - 1;
-        uint8_t bit_choice = 1 << t_irq;
-        bit_choice ~= bit_choice;
-        slave_mask &= bit_choice;
+        t_irq = irq_num - IRQ_MASTER - 1;
+        bit_choice = (uint8_t) (1 << t_irq);
+        slave_mask &= ~bit_choice;
         outb(slave_mask,SLAVE_8259_DATA);
     }
     else
@@ -85,7 +85,7 @@ void disable_irq(uint32_t irq_num)
     {
         /* Slave PIC */
         uint32_t t_irq = irq_num - IRQ_MASTER - 1;
-        uint8_t bit_choice = 1 << irq_num;
+        uint8_t bit_choice = 1 << t_irq;
         slave_mask |= bit_choice;
         outb(slave_mask,SLAVE_8259_DATA);
     }
