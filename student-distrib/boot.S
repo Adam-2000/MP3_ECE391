@@ -24,8 +24,18 @@ _start:
     jmp     continue
 
 continue:
-    # Load the GDT
-
+    # Load the GDTR
+    lgdt gdt_desc
+    # initialize LDT, the registers should be saved for further use (entry)
+    pushl %eax
+    pushl %ebx
+    pushfl
+    call idt_init 
+    popfl 
+    popl %ebx
+    popl %eax
+    # Load the IDTR
+    lidt idt_desc_ptr
     # Load CS with the new descriptor value
     ljmp    $KERNEL_CS, $keep_going
 
