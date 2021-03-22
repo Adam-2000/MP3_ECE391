@@ -1,6 +1,7 @@
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
+#include "rtc.h"
 
 #define PASS 1
 #define FAIL 0
@@ -31,22 +32,86 @@ static inline void assertion_failure(){
  */
 int idt_test(){
 	TEST_HEADER;
-
 	int i;
 	int result = PASS;
-	for (i = 0; i < 10; ++i){
+	for (i = 0; i < 9; ++i){
 		if ((idt[i].offset_15_00 == NULL) && 
 			(idt[i].offset_31_16 == NULL)){
 			assertion_failure();
 			result = FAIL;
 		}
 	}
-
 	return result;
 }
 
 // add more tests here
+void rtc_test()
+{
+	uint32_t old_value = 0;
+	uint32_t new_value;
+	
 
+	while(1)
+	{
+		new_value = rtc_test_num;
+		if(new_value != old_value)
+		{
+			TEST_HEADER;
+			printf("unequal %d /n", new_value);
+			old_value = new_value;
+		}
+	}
+}
+
+/* paging_test_exist
+* Checks that the kernel and video memory addresses can be dereferenced.
+* Inputs: None
+* Outputs: None
+* Side Effects: Halts the system and displays fault message
+* Coverage: 4MB Kernel page and 4KB vedio memory
+* Files: paging.c
+*/
+int paging_test_exist() {
+    TEST_HEADER;
+    //Used to test dereference locations.
+    char result;
+
+    char* pointer = (char*)0x400000;    	   //start of Kernel memory
+    result = *pointer;
+
+    pointer = (char*)0x7FFFFF;                 //Bottom of kernel memory
+    result = *pointer;
+
+    pointer = (char*)0xB8000;                  //start of Video memory address
+    result = *pointer;
+
+    pointer = (char*)0xB8FFF;                 //Bottom of video memory
+    result = *pointer;
+    return PASS;                              // if no exception not occure, pass
+}
+
+
+/* paging_test_null
+* dereference the null mem address, it will occur a exception.
+* Inputs: None
+* Outputs: None
+* Side Effects: Halts the system and displays fault message
+* Coverage: memory that would not be used
+* Files: paging.c
+*/
+int paging_test_null(){
+	TEST_HEADER;
+	char result;
+
+    char* pointer = (char*)0x00000;           //pointing to a null mem
+    result = *pointer;
+
+	return PASS;                             // if no exception not occure, pass
+}
+
+
+
+// add more tests here
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
@@ -55,6 +120,17 @@ int idt_test(){
 
 /* Test suite entry point */
 void launch_tests(){
+	printf("*********************\n");
+	//rtc_test();
 	TEST_OUTPUT("idt_test", idt_test());
-	// launch your tests here
+
+	printf("*********************\n");
+
+	TEST_OUTPUT("paging_test_exist", paging_test_exist());	
+
+	printf("*********************\n");
+
+	TEST_OUTPUT("paging_test_null", paging_test_null());
+
+	printf("*********************\n");
 }
