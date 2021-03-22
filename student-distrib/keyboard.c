@@ -36,23 +36,32 @@ void init_keyboard() {
  *	effects:	Handle the keyboard interrup and display corresponding key on screen
  */
 void keyboard_handler(){
+    uint32_t char_index;
+    char key_char;
     cli();
-    while(1){
-        // Check whether the input value is in range for reasonable key
-        if((inb(KEY_DATAPORT) > 0) && (inb(KEY_DATAPORT) < KEY_NUM)){
-            pressed_key = inb(KEY_DATAPORT);
-            break;
+    char_index = inb(KEY_DATAPORT);
+    if(char_index < KEY_NUM){
+        key_char = keymap[char_index];
+        if(key_char != '\0'){
+            putc(key_char);
         }
     }
+    // while(1){
+    //     // Check whether the input value is in range for reasonable key
+    //     if((inb(KEY_DATAPORT) > 0) && (inb(KEY_DATAPORT) < KEY_NUM)){
+    //         pressed_key = inb(KEY_DATAPORT);
+    //         break;
+    //     }
+    // }
 
-    echo = keymap[pressed_key];
-    // Handle NULL key
-    if(echo == NULL_KEY){
-        send_eoi(IRQ_KEYBOARD);
-        return;
-    } 
+    // echo = keymap[pressed_key];
+    // // Handle NULL key
+    // if(echo == NULL_KEY){
+    //     send_eoi(IRQ_KEYBOARD);
+    //     return;
+    // } 
     
-    putc(echo);
+    // putc(echo);
 
     send_eoi(IRQ_KEYBOARD);
     sti();
