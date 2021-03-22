@@ -1,9 +1,21 @@
 #include "paging.h"
-#include "types.h"
-#include "lib.h"
 
-void paging_init(void){
 
+
+paging_dir_entry_t page_directory[NUM_ENTRY] __attribute__((aligned(ALINED_4K)));
+paging_table_entry_t page_table[NUM_ENTRY] __attribute__((aligned(ALINED_4K)));
+/*
+ * paging_init
+ *   DESCRIPTION: init the page directory entry and page 
+ *                table entry for paging
+ *   INPUTS: none
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ */
+
+void paging_init(){
+
+    int i;  //index
     //set the first 4MB as 4kB pages
     page_directory[0].present = 1;
     page_directory[0].r_w = 1;
@@ -29,7 +41,7 @@ void paging_init(void){
     //thus bit 31-12 would be 0000 0000 0100 0000 0000
     page_directory[1].table_addr = (START_KERNAL_ADDR/ALINED_4K/NUM_ENTRY)<<10;
 
-    int i;
+    
     // set the following pde as not present 
     for (i=2;i<NUM_ENTRY;i++){
         page_directory[i].present = 0;
@@ -37,23 +49,44 @@ void paging_init(void){
 
     // init the page table for 0-4MB address
     for (i=0;i<NUM_ENTRY;i++){
+        page_table[i].present = 0;
         if (i == VEDIO_MEM/ALINED_4K){
             // set the target vedio memory page as present 
-            page_table[i].present =  1;
-            page_table[i].read_write    = 1;
-            page_table[i].user          = 0;
-            page_table[i].write_through = 0;  
-            page_table[i].cache_disable = 1;  
-            page_table[i].accessed      = 0;
-            page_table[i].dirty         = 0;
-            page_table[i].reserved      = 0;
-            page_table[i].global        = 0;  
-            page_table[i].page_addr_31_12 = i;
+            page_table[i].present        = 1;
+            page_table[i].r_w            = 1;
+            page_table[i].u_s            = 0;
+            page_table[i].pwt            = 0;  
+            page_table[i].pcd            = 1;  
+            page_table[i].access         = 0;
+            page_table[i].dirty          = 0;
+            page_table[i].pat_alw_zero   = 0;
+            page_table[i].global_bit     = 0; 
+
+            // the page base address is the index (total 2^10)
+            page_table[i].page_addr      = i; 
         }
-        else {
-            // set other page as not present
-            page_table[i].present = 0;
-        }
+        
     }
-}
+    //enable page directory by change control reg
+    change_control_reg((int)page_directory);
+}                                                                                                  
+
+/*
+    asm volatile("                                          \n\
+        movl %0, %%eax                                      \n\
+        movl %%eax, %%cr3                                   \n\
+        movl %%cr4, %%eax                                   \n\
+        orl $0x10, %%eax                                    \n\
+        movl %%eax, %%cr4                                   \n\
+        movl %%cr0, %%eax                                   \n\
+        orl $0x80000000, %%eax                              \n\
+        movl %%eax, %%cr0                                   \n\
+        "
+        :
+        : "r" (page_dir)
+        : "eax"
+    );
+
+*/
+
 
