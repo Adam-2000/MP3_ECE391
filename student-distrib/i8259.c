@@ -17,20 +17,25 @@ uint8_t slave_mask = FF_MASK;  /* IRQs 8-15 */
 /* connects the ports of master's and slave's data ports */
 /* Initialize the 8259 PIC */
 void i8259_init(void) 
-{
+{   
     /* mask all of 8259A-1/2 */
     outb(FF_MASK, MASTER_8259_DATA); // left for the port 2 for slave
     outb(FF_MASK, SLAVE_8259_DATA);
 
     outb(ICW1, MASTER_8259_PORT); // ICW1 select 8259A-1 Init
-    outb(ICW2_MASTER, MASTER_8259_DATA); // ICW2 IR0-7 map to 0x20-0x27
-    outb(ICW3_MASTER, MASTER_8259_DATA); // has a slave on IR2
-    outb(ICW4, MASTER_8259_DATA); // normal EOI
-
     outb(ICW1, SLAVE_8259_PORT);
+
+    outb(ICW2_MASTER, MASTER_8259_DATA); // ICW2 IR0-7 map to 0x20-0x27
     outb(ICW2_SLAVE, SLAVE_8259_DATA);
+
+    outb(ICW3_MASTER, MASTER_8259_DATA); // has a slave on IR2
     outb(ICW3_SLAVE, SLAVE_8259_DATA); // slave is on IR2
+
+    outb(ICW4, MASTER_8259_DATA); // normal EOI
     outb(ICW4, SLAVE_8259_DATA); // normal EOI
+
+    outb(FB_MASK, MASTER_8259_DATA);
+    outb(FF_MASK, SLAVE_8259_DATA);
 
 }
 
@@ -51,7 +56,7 @@ void enable_irq(uint32_t irq_num)
         master_mask &= ~bit_choice;
         outb(master_mask, MASTER_8259_DATA);
     }
-    else if( (irq_num>IRQ_MASTER) && (irq_num<IRQ_MAX) )
+    else if( (irq_num>IRQ_MASTER) && (irq_num<=IRQ_MAX) )
     {
         /* Slave PIC */
         t_irq = irq_num - IRQ_MASTER - 1;
@@ -107,7 +112,7 @@ void send_eoi(uint32_t irq_num)
         /* it is the master branch */
         outb( (EOI | irq_num), MASTER_8259_PORT );
     }
-    else if( (irq_num>IRQ_MASTER) && (irq_num<IRQ_MAX) )
+    else if( (irq_num>IRQ_MASTER) && (irq_num<=IRQ_MAX) )
     {
         uint32_t t_irq = irq_num - IRQ_MASTER - 1; // this is the port value for slave 
         outb( (EOI | t_irq), SLAVE_8259_PORT);

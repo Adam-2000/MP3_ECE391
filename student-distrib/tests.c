@@ -1,7 +1,7 @@
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
-
+#include "rtc.h"
 #define PASS 1
 #define FAIL 0
 
@@ -66,6 +66,44 @@ int key_test(){
 	while(1);
 	return PASS;
 }
+
+/* RTC Test - Example
+ * 
+ * Asserts that first 10 IDT entries are not NULL
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: Load IDT, IDT definition
+ * Files: x86_desc.h/S
+ */
+int rtc_test(){
+	TEST_HEADER;
+	uint32_t old = 0;
+	while(1){
+		if (old != rtc_counter){
+			old = rtc_counter;
+			printf("rtc counter= %d\n", old);
+		}
+	}
+	return PASS;
+}
+
+/* syscall Test - Example
+ * 
+ * Asserts that first 10 IDT entries are not NULL
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: Load IDT, IDT definition
+ * Files: x86_desc.h/S
+ */
+int syscall_test(){
+	TEST_HEADER;
+	asm volatile("int $0x80");
+	printf("endend where were we???\n");
+	return PASS;
+}
+
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
@@ -74,6 +112,8 @@ int key_test(){
 
 /* Test suite entry point */
 void launch_tests(){
+	TEST_OUTPUT("syscall_test", syscall_test());
+	printf("where were we???\n");
 	TEST_OUTPUT("key_test", key_test());
 	// launch your tests here
 }

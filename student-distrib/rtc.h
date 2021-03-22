@@ -30,9 +30,10 @@
 #include "lib.h"
 /* init the rtc */
 extern void RTC_INIT(void);
-
+extern volatile uint32_t rtc_counter;
 /* RTC handler */
 extern void RTC_handler(void);
+void RTC_frequency_set(uint32_t f);
 #endif
 
 #endif 
