@@ -4,12 +4,14 @@
 
 #include "keyboard.h"
 
-static unsigned char keymap[KEY_NUM] =             // possible key contents
+static char keymap[KEY_NUM] =             // possible key contents
 	{'\0', '\0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\0', '\0',
 	 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\0', '\0', 'a', 's',
 	 'd', 'f', 'g', 'h', 'j', 'k', 'l' , ';', '\'', '`', '\0', '\\', 'z', 'x', 'c', 'v', 
 	 'b', 'n', 'm',',', '.', '/', '\0', '*', '\0', ' ', '\0'};
 
+static char keyboard_buffer[SIZE_KEYBOARD_BUFFER];
+static uint32_t key_buf_cnt;
 /*
   *	Function: init_keyboard
  *	Description: This function initializes the keyboard to IRQ 1 on the PIC
@@ -48,4 +50,18 @@ void keyboard_handler(){
 
     send_eoi(IRQ_KEYBOARD);
     sti();
+}
+
+int32_t keyboard_open(){
+    enable_irq(IRQ_KEYBOARD);
+    return 0;
+}
+
+int32_t keyboard_read(char* buffer);
+
+int32_t keyboard_write(const char* buffer);
+
+int32_t keyboard_close(){
+    disable_irq(IRQ_KEYBOARD);
+    return 0;
 }

@@ -12,6 +12,8 @@ static int screen_x;
 static int screen_y;
 static char* video_mem = (char *)VIDEO;
 
+static void upscroll();
+
 /* void clear(void);
  * Inputs: void
  * Return Value: none
@@ -169,16 +171,37 @@ int32_t puts(int8_t* s) {
  *  Function: Output a character to the console */
 void putc(uint8_t c) {
     if(c == '\n' || c == '\r') {
-        screen_y++;
+        if(screen_y == NUM_ROWS - 1){
+            upscroll();
+        } else {
+            screen_y++;
+        }
         screen_x = 0;
     } else {
+        if(screen_x == NUM_COLS - 1 && screen_y == NUM_ROWS - 1){
+            upscroll();
+            screen_y--;
+        }
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
         screen_x++;
-        screen_x %= NUM_COLS;
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        screen_x %= NUM_COLS;
     }
 }
+
+static void upscroll(){
+    int i;
+    for(i = 0; i < NUM_ROWS - 1; i++){
+        memcpy((uint8_t *)(video_mem + (NUM_COLS * i << 1)), (uint8_t *)(video_mem + (NUM_COLS * (i + 1) << 1)), NUM_COLS * 2);      
+    }
+    for(i = 0; i < NUM_COLS; i++){
+        *(uint8_t *)(video_mem + ((NUM_COLS * (NUM_ROWS - 1) + i) << 1)) = '\0';
+    }
+}
+
+
+
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
  * Inputs: uint32_t value = number to convert

@@ -184,16 +184,16 @@ int devide_zero(){
 /* Checkpoint 5 tests */
 /* Test suite entry point */
 void launch_tests(){
-	printf("*********************\n");
-	TEST_OUTPUT("syscall_test", syscall_test());
-	printf("*********************\n");
-	TEST_OUTPUT("idt_test", idt_test());
+	// printf("*********************\n");
+	// TEST_OUTPUT("syscall_test", syscall_test());
+	// printf("*********************\n");
+	// TEST_OUTPUT("idt_test", idt_test());
 
-	printf("*********************\n");
-	TEST_OUTPUT("paging_test_exist", paging_test_exist());	
+	// printf("*********************\n");
+	// TEST_OUTPUT("paging_test_exist", paging_test_exist());	
 
-	printf("*********************\n");
-	TEST_OUTPUT("paging_test_null", paging_test_null());
+	// printf("*********************\n");
+	// TEST_OUTPUT("paging_test_null", paging_test_null());
 
 	// printf("*********************\n");
 	// TEST_OUTPUT("syscall_test", syscall_test());
