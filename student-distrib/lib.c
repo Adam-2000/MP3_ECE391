@@ -190,16 +190,54 @@ void putc(uint8_t c) {
     }
 }
 
+/* void upscroll();
+ * Inputs: none
+ * Return Value: none
+ *  Function: upscroll the screen */
 static void upscroll(){
     int i;
     for(i = 0; i < NUM_ROWS - 1; i++){
         memcpy((uint8_t *)(video_mem + (NUM_COLS * i << 1)), (uint8_t *)(video_mem + (NUM_COLS * (i + 1) << 1)), NUM_COLS * 2);      
     }
     for(i = 0; i < NUM_COLS; i++){
-        *(uint8_t *)(video_mem + ((NUM_COLS * (NUM_ROWS - 1) + i) << 1)) = '\0';
+        *(uint8_t *)(video_mem + ((NUM_COLS * (NUM_ROWS - 1) + i) << 1)) = ' ';
+        *(uint8_t *)(video_mem + ((NUM_COLS * (NUM_ROWS - 1) + i) << 1) + 1) = ATTRIB;
     }
 }
 
+/* int32_t removec();
+ * Inputs: none
+ * Return Value: 0 if success; -1 if fail
+ *  Function: Remove the last character from the console */
+int32_t removec(){
+    if(screen_x == 0){
+        if(screen_y == 0){
+            return -1;
+        }
+        screen_x = NUM_COLS - 1;
+        screen_y--;
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+        return 0;
+    }
+    screen_x--;
+    *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
+    *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+    return 0;
+}
+
+/* int32_t set_cursor(uint32_t x, uint32_t y);
+ * Inputs: x, y -- the new position for cursor
+ * Return Value: 0 if success; -1 if fail
+ *  Function: set the cursor to a new position */
+int32_t set_cursor(uint32_t x, uint32_t y){
+    if (x >= NUM_COLS || y >= NUM_ROWS){
+        return -1;
+    }
+    screen_x = x;
+    screen_y = y;
+    return 0;
+}
 
 
 
