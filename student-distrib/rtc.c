@@ -5,13 +5,13 @@
     Outputs: none 
     func: init the rtc 
 */
-//volatile uint32_t rtc_counter;
-static volatile uint32_t rtc_counter;
+volatile uint32_t rtc_counter;
+//static volatile uint32_t rtc_counter;
 
 int32_t rtc_open(const uint8_t* filename)
 {
     uint8_t prev;
-    uint32_t init_lg_freq = RTC_INIT_F;
+    uint32_t init_lg_freq = INIT_FREQ;
     cli();
 
     rtc_write(0, &init_lg_freq, 4);
