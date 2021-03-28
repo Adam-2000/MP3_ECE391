@@ -66,44 +66,17 @@ int32_t rtc_write(int32_t fd, const void* buf, int32_t nbytes)
     if (nbytes != 4){
         return -1;
     }
-    // look up table for frequency - rate
-    switch (freq){
-        case 2:
-            rate = 0xF;
-            break;
-        case 4:
-            rate = 0xE;
-            break;
-        case 8:
-            rate = 0xD;
-            break;
-        case 16:
-            rate = 0xC;
-            break;
-        case 32:
-            rate = 0xB;
-            break;
-        case 64:
-            rate = 0xA;
-            break;
-        case 128:
-            rate = 0x9;
-            break;
-        case 256:
-            rate = 0x8;
-            break;
-        case 512:
-            rate = 0x7;
-            break;
-        case 1024:
-            rate = 0x6;
-            break;
-        default:
-            //don't accept other frequencies
-            return -1;
+    // check if valid, and if it is power of 2
+    if (freq > 1024 || freq < 2 || freq & (freq - 1)){
+        return -1;
     }
-    // argument to rtc chip
-    
+    for (rate = 1; rate <= 10; rate++){
+        if(freq == (0x1 << rate)){
+            break;
+        }
+    }
+    // change from lg(freq) to rate argument to rtc chip port
+    rate = 16 - rate;
     /* read the current value in Reg_A */
     outb(REGA_OFF, PORT_70);
     prev = inb(PORT_CMOS);
