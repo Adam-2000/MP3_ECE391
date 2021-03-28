@@ -2,6 +2,7 @@
 #include "x86_desc.h"
 #include "lib.h"
 #include "rtc.h"
+#include "keyboard.h"
 #define PASS 1
 #define FAIL 0
 
@@ -59,7 +60,15 @@ int idt_test(){
  */
 int key_test(){
 	TEST_HEADER;
-	while(1);
+	char buffer[128];
+	uint32_t ret;
+	while(1){
+		printf("starting reading:\n");
+		ret = terminal_read(0, buffer, 128);
+		printf("# bytes:%u\n", ret);
+		printf("what have you typed:\n");
+		terminal_write(0, buffer, ret);
+	}
 	return PASS;
 }
 

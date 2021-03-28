@@ -40,6 +40,7 @@ static char shifted_keymap[KEY_NUM] = {
 static struct keyboard_buffer_struct_t{
     char buffer[SIZE_KEYBOARD_BUFFER];
     uint32_t cnt;
+    uint32_t enable;
     //uint32_t cursor; // this saves for cursor operation // don't delete
 } key_buffer;
 
@@ -70,6 +71,7 @@ static union key_status_t {
 void init_keyboard() {
     key_state.val = 0;
     key_buffer.cnt = 0;
+    key_buffer.enable = 0;
     //key_buffer.cursor = 0;
 	enable_irq(IRQ_KEYBOARD);
 }
@@ -166,11 +168,14 @@ void keyboard_handler(){
                     key_char -= CAPITAL_OFF;
                 }
             } else if(key_status.shift | key_status.shift_r){
+                // shift key for non-character inputs
                 key_char = shifted_keymap[char_index];
             }
             // if the buffer has only 1 space left, then don't put the new character. 
             if(key_buffer.cnt < SIZE_KEYBOARD_BUFFER - 1){
-                key_buffer.buffer[key_buffer.cnt++] = key_char;
+                if (key_buffer.enable){
+                    key_buffer.buffer[key_buffer.cnt++] = key_char;
+                }
                 putc(key_char);
             }
             
@@ -179,17 +184,21 @@ void keyboard_handler(){
         switch (char_index){
             case ENTER:
                 if(key_buffer.cnt < SIZE_KEYBOARD_BUFFER){
-                    key_buffer.buffer[key_buffer.cnt++] = '\n';
+                    if (key_buffer.enable){
+                        key_buffer.buffer[key_buffer.cnt++] = '\n';
+                    }
                     putc('\n');
                 }
                 break;
             case TAB:               // put 4 space 
                 for(i = 0; i < 4; i++){
-                    if(key_buffer.cnt < SIZE_KEYBOARD_BUFFER - 1){
-                        key_buffer.buffer[key_buffer.cnt++] = ' ';
-                        putc(' ');
+                    if(key_buffer.cnt >= SIZE_KEYBOARD_BUFFER - 1){
+                        break;
                     }
-                    break;
+                    if (key_buffer.enable){
+                        key_buffer.buffer[key_buffer.cnt++] = ' ';
+                    }
+                    putc(' ');
                 }
                 break;
             case SHIFT:
@@ -208,9 +217,11 @@ void keyboard_handler(){
                 key_status.capital_status ^= 1;
                 break;
             case BACKSPACE:
-                if (key_buffer.cnt > 0){
-                    key_buffer.cnt--;
-                    removec();
+                if (key_buffer.enable){
+                    if (key_buffer.cnt > 0){
+                        key_buffer.cnt--;
+                        removec();
+                    }
                 }
                 break;
             default:
@@ -236,11 +247,45 @@ int32_t keyboard_open(){
     return 0;
 }
 
-int32_t keyboard_read(char* buffer);
+int32_t terminal_open(const uint8_t* filename){
+    key_buffer.cnt = 0;
+    key_buffer.enable = 0;
+    return 0;
+}
 
-int32_t keyboard_write(const char* buffer);
+int32_t terminal_read(int32_t fd, char* buffer, int32_t nbytes){
+    int32_t nbytes_read;
+    key_buffer.cnt = 0;
+    key_buffer.enable = 1;
+    while(1){
+        if(key_buffer.cnt > 0){
+            if(key_buffer.buffer[key_buffer.cnt - 1] == '\n'){
+                break;
+            }
+        }
+    }
+    nbytes_read = (key_buffer.cnt > nbytes) ? nbytes : key_buffer.cnt;
+    memcpy(buffer, key_buffer.buffer, nbytes_read);
+    key_buffer.cnt = 0;
+    key_buffer.enable = 0;
+    return nbytes_read;
+}
 
-int32_t keyboard_close(){
-    disable_irq(IRQ_KEYBOARD);
+int32_t terminal_write(int32_t fd, const char* buffer, int32_t nbytes){
+    int i;
+    int32_t nbytes_write = 0;
+    for (i = 0; i < nbytes; i++){
+        if(buffer[i] == '\0'){
+            break;
+        }
+        putc(buffer[i]);
+        nbytes_write++;
+    }
+    return nbytes_write;
+}
+
+int32_t terminal_close(int32_t fd){
+    key_buffer.cnt = 0;
+    key_buffer.enable = 0;
     return 0;
 }
