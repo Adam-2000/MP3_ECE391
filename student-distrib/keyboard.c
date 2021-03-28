@@ -166,6 +166,7 @@ void keyboard_handler(){
                     key_char -= CAPITAL_OFF;
                 }
             } else if(key_status.shift | key_status.shift_r){
+                // shift key for non-character inputs
                 key_char = shifted_keymap[char_index];
             }
             // if the buffer has only 1 space left, then don't put the new character. 
@@ -185,11 +186,11 @@ void keyboard_handler(){
                 break;
             case TAB:               // put 4 space 
                 for(i = 0; i < 4; i++){
-                    if(key_buffer.cnt < SIZE_KEYBOARD_BUFFER - 1){
-                        key_buffer.buffer[key_buffer.cnt++] = ' ';
-                        putc(' ');
+                    if(key_buffer.cnt >= SIZE_KEYBOARD_BUFFER - 1){
+                        break;
                     }
-                    break;
+                    key_buffer.buffer[key_buffer.cnt++] = ' ';
+                    putc(' ');
                 }
                 break;
             case SHIFT:
