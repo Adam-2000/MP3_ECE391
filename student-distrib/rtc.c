@@ -60,13 +60,50 @@ void RTC_handler(void)
 int32_t rtc_write(int32_t fd, const void* buf, int32_t nbytes)
 {
     uint32_t prev;
-    uint32_t lg_freq = *(uint32_t*)buf;
-    // don't accept frequecy larger than 1024Hz
-    if (lg_freq > 10){
+    uint32_t freq = *(uint32_t*)buf;
+    uint8_t rate;
+    // check 4 bytes
+    if (nbytes != 4){
         return -1;
     }
+    // look up table for frequency - rate
+    switch (freq){
+        case 2:
+            rate = 0xF;
+            break;
+        case 4:
+            rate = 0xE;
+            break;
+        case 8:
+            rate = 0xD;
+            break;
+        case 16:
+            rate = 0xC;
+            break;
+        case 32:
+            rate = 0xB;
+            break;
+        case 64:
+            rate = 0xA;
+            break;
+        case 128:
+            rate = 0x9;
+            break;
+        case 256:
+            rate = 0x8;
+            break;
+        case 512:
+            rate = 0x7;
+            break;
+        case 1024:
+            rate = 0x6;
+            break;
+        default:
+            //don't accept other frequencies
+            return -1;
+    }
     // argument to rtc chip
-    uint8_t rate = FREQ2RATE(lg_freq);
+    
     /* read the current value in Reg_A */
     outb(REGA_OFF, PORT_70);
     prev = inb(PORT_CMOS);

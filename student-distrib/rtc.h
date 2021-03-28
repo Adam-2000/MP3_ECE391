@@ -20,8 +20,8 @@
 #define CNT_MAX     0x80000000
 #define IRQ_RTC_NUM 8
 
-#define RTC_INIT_F  1       // initial frequency, 2^1
-#define FREQ2RATE(freq) 16 - freq
+//#define RTC_INIT_F  1       // initial frequency, 2^1
+//#define FREQ2RATE(freq) 16 - freq
 
 #ifndef ASM
 
