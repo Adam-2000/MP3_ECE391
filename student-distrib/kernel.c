@@ -11,6 +11,7 @@
 #include "rtc.h"
 #include "keyboard.h"
 #include "paging.h"
+#include "file_system.h"
 
 #define RUN_TESTS
 
@@ -57,6 +58,8 @@ void entry(unsigned long magic, unsigned long addr) {
         module_t* mod = (module_t*)mbi->mods_addr;
         while (mod_count < mbi->mods_count) {
             printf("Module %d loaded at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_start);
+            file_system_init(mod->mod_start);
+            printf("file system initialized\n");
             printf("Module %d ends at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_end);
             printf("First few bytes of module:\n");
             for (i = 0; i < 16; i++) {
@@ -144,6 +147,7 @@ void entry(unsigned long magic, unsigned long addr) {
     rtc_open(0);
     init_keyboard(); 
     paging_init();
+    
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
 
