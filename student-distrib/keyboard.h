@@ -25,7 +25,7 @@
 extern void init_keyboard();
 #include "lib.h"
 
-/* Keyboard handler */
+/* Keyboard handlers */
 extern void keyboard_handler();
 
 extern int32_t terminal_open(const uint8_t* filename);

@@ -4,6 +4,7 @@
 #ifndef ASM
 #include "lib.h"
 
+/* Exception handlers */
 extern void exception_divide_error();
 extern void exception_debug();
 extern void exception_nmi_interrupt();
