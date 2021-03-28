@@ -8,12 +8,13 @@
 //volatile uint32_t rtc_counter;
 static volatile uint32_t rtc_counter;
 
-int32_t rtc_open()
+int32_t rtc_open(const uint8_t* filename)
 {
     uint8_t prev;
+    uint32_t init_lg_freq = RTC_INIT_F;
     cli();
 
-    rtc_write(RTC_INIT_F);
+    rtc_write(0, &init_lg_freq, 4);
     /* select the Register B and disable NMI*/
     outb((REGB_OFF | RTC_NMI), PORT_70);
 
@@ -51,14 +52,15 @@ void RTC_handler(void)
 }
 
 /* int32_t rtc_write()
- * Inputs: lg_freq -- the lg(frequency)
+ * Inputs: buf -- pointer to the lg(frequency)
  * Outputs: none
  * We need to write the frequency to the RTC, and return 0/-1 to see if okay
  * the frequency set
  */
-int32_t rtc_write(int32_t lg_freq)
+int32_t rtc_write(int32_t fd, const void* buf, int32_t nbytes)
 {
     uint32_t prev;
+    uint32_t lg_freq = *(uint32_t*)buf;
     // don't accept frequecy larger than 1024Hz
     if (lg_freq > 10){
         return -1;
@@ -79,7 +81,7 @@ int32_t rtc_write(int32_t lg_freq)
  * Outputs: none
  * Side effect: nothing
  */
-int32_t rtc_read(){
+int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes){
     int32_t old_val = rtc_counter;
     while (old_val == rtc_counter);
     return 0;
@@ -90,6 +92,6 @@ int32_t rtc_read(){
  * Outputs: none
  * Side effect: nothing
  */
-int32_t rtc_close(){
+int32_t rtc_close(int32_t fd){
     return 0;
 }

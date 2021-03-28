@@ -31,13 +31,13 @@
 /* RTC handler */
 extern void RTC_handler(void);
 /* void RTC_frequency_set */
-extern int32_t rtc_write(int32_t lg_freq);
+extern int32_t rtc_write(int32_t fd, const void* buf, int32_t nbytes);
 /* void RTC open */
-extern int32_t rtc_open();
+extern int32_t rtc_open(const uint8_t* filename);
 /* void RTC_close */
-extern int32_t rtc_close();
+extern int32_t rtc_close(int32_t fd);
 /* void RTC_frequency_set */
-extern int32_t rtc_read();
+extern int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes);
 
 #endif
 

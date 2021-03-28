@@ -141,7 +141,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /* Init the PIC */
     i8259_init();
-    RTC_INIT();
+    rtc_open("rtc");
     init_keyboard(); 
     paging_init();
     /* Initialize devices, memory, filesystem, enable device interrupts on the
