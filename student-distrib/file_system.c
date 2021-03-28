@@ -174,7 +174,7 @@ int32_t directory_read(int32_t fd, void* buf, int32_t nbytes) {
     int i;
     uint8_t* buffer;
     // only read one file name at a time
-    if (fd_dummy.inode_idx != 0 || nbytes != NAME_LEN){
+    if (fd_dummy.inode_idx != 0 || nbytes != NAME_LEN || fd_dummy.offset_rec >= boot_block->dentry_num){
         return -1;
     }
     buffer = (uint8_t*) buf;

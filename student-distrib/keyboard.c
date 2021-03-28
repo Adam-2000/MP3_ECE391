@@ -158,7 +158,7 @@ void keyboard_handler(){
             if (key_char >= 'a' && key_char <= 'z'){
                 // check for  ctrl + l
                 if (key_char == 'l' && (key_status.ctrl | key_status.ctrl_r)){
-                    key_buffer.cnt = 0;
+                    //key_buffer.cnt = 0;
                     clear();
                     set_cursor(0, 0);
                     goto END;
