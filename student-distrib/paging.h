@@ -15,7 +15,7 @@
 #ifndef ASM
 
 // struct for both two types of pde
-typedef struct __attribute__((packed)) paging_dir_entry_t{
+typedef struct __attribute__((packed)) paging_dir_entry{
     uint32_t present        :1;     //1 valid, 0 not exist
     uint32_t r_w            :1;
     uint32_t u_s            :1;
@@ -30,7 +30,7 @@ typedef struct __attribute__((packed)) paging_dir_entry_t{
 }paging_dir_entry_t;
 
 // struct for pte
-typedef struct __attribute__((packed)) paging_table_entry_t{
+typedef struct __attribute__((packed)) paging_table_entry{
     uint32_t present        :1;     //1 valid, 0 not exist
     uint32_t r_w            :1;
     uint32_t u_s            :1;
@@ -38,7 +38,7 @@ typedef struct __attribute__((packed)) paging_table_entry_t{
     uint32_t pcd            :1;
     uint32_t access         :1;
     uint32_t dirty          :1;
-    uint32_t pat_alw_zero   :1;
+    uint32_t pat_alw_zero   :1;     // this bit is always 0
     uint32_t global_bit     :1;
     uint32_t avail          :3;
     uint32_t page_addr     :20;

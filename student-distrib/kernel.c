@@ -10,6 +10,7 @@
 #include "tests.h"
 #include "rtc.h"
 #include "keyboard.h"
+#include "paging.h"
 
 #define RUN_TESTS
 
@@ -142,6 +143,7 @@ void entry(unsigned long magic, unsigned long addr) {
     i8259_init();
     RTC_INIT();
     init_keyboard(); 
+    paging_init();
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
 

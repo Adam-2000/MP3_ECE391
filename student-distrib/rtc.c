@@ -5,21 +5,22 @@
     Outputs: none 
     func: init the rtc 
 */
+volatile uint32_t rtc_counter;
+
 void RTC_INIT(void)
 {
-    uint32_t flags;
     uint8_t prev;
-    cli_and_save(flags);
+    cli();
     /* frequency define */
     /* select the Register A and disable NMI*/
-    outb((REGA_OFF | RTC_NMI), PORT_70);
-
+    outb(REGA_OFF, PORT_70);
+    outb(0x20,PORT_CMOS); //???????????????????
     /* read the current value in Reg_A */
+    outb(REGA_OFF, PORT_70);
     prev = inb(PORT_CMOS);
-
     /* since inb would move RegD so agagin oub */
-    outb((REGA_OFF | RTC_NMI), PORT_70);
-    outb((prev | INIT_FREQ), PORT_CMOS);
+    outb(REGA_OFF, PORT_70);
+    outb(((prev & 0xF0) | INIT_FREQ), PORT_CMOS);
 
     /* select the Register B and disable NMI*/
     outb((REGB_OFF | RTC_NMI), PORT_70);
@@ -31,10 +32,9 @@ void RTC_INIT(void)
     outb((REGB_OFF | RTC_NMI), PORT_70);
     outb((prev | RTC_PIE), PORT_CMOS);
 
-    
-    enable_irq(IRQ_RTC_NUM);
     sti();
-    restore_flags(flags);
+    enable_irq(IRQ_RTC_NUM);
+    
 }
 
 
@@ -45,23 +45,14 @@ void RTC_INIT(void)
 */
 void RTC_handler(void)
 {
+    //printf("int rtc handler: %d\n", rtc_counter);
     /* connect the port of RegC */
     outb(REGC_OFF,PORT_70);
     /* just read the data */
     inb(PORT_CMOS);
-
+    //rtc_counter++;
+    //test_interrupts();
     send_eoi(IRQ_RTC_NUM);
-}
-
-
-
-/* void RTC_frequency_set */
-/* Inputs: the settled frequency required */
-/* Outputs: none */
-/* func: modify the required rtc frequency in given */
-/*void RTC_frequency_set(uint32_t f)
-{
-
 
 }
-*/
+

@@ -1,0 +1,17 @@
+boot.o: boot.S multiboot.h x86_desc.h types.h
+idt_handler_preset.o: idt_handler_preset.S
+paging_enable.o: paging_enable.S
+x86_desc.o: x86_desc.S x86_desc.h types.h
+exceptions.o: exceptions.c exceptions.h lib.h types.h
+i8259.o: i8259.c i8259.h types.h lib.h
+idt_setup.o: idt_setup.c idt_setup.h x86_desc.h types.h exceptions.h \
+  lib.h system_calls.h interrupts.h idt_handler_preset.h
+interrupts.o: interrupts.c interrupts.h lib.h types.h
+kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h debug.h \
+  tests.h rtc.h keyboard.h
+keyboard.o: keyboard.c keyboard.h types.h i8259.h x86_desc.h lib.h
+lib.o: lib.c lib.h types.h
+paging.o: paging.c paging.h x86_desc.h types.h lib.h paging_enable.h
+rtc.o: rtc.c rtc.h types.h i8259.h lib.h
+system_calls.o: system_calls.c system_calls.h types.h lib.h
+tests.o: tests.c tests.h x86_desc.h types.h lib.h rtc.h i8259.h
