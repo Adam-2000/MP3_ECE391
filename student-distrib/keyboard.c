@@ -4,6 +4,7 @@
 
 #include "keyboard.h"
 
+/*Scan codes*/
 #define RELEASE_SIGN 0x80
 #define CAPITAL_OFF 'a' - 'A'
 
@@ -24,6 +25,7 @@
 #define ALT_R 0x11
 #define CTRL_R 0x1D
 
+/*Normal key pad*/
 static char keymap[KEY_NUM] = {
     '\0', '\0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\0', '\0',
 	'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\0', '\0', 'a', 's',
@@ -31,19 +33,23 @@ static char keymap[KEY_NUM] = {
 	'b', 'n', 'm',',', '.', '/', '\0', '*', '\0', ' ', '\0'
 };
 
+/*Special key pad with SHIFT or CTRL*/
 static char shifted_keymap[KEY_NUM] = {
     '\0', '\0', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '\0', '\0',
 	'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\0', '\0', 'A', 'S',
 	'D', 'F', 'G', 'H', 'J', 'K', 'L' , ':', '"', '~', '\0', '|', 'Z', 'X', 'C', 'V', 
 	'B', 'N', 'M','<', '>', '?', '\0', '*', '\0', ' ', '\0'
 };
+
+/*Basic keyboard buffer structure*/
 static struct keyboard_buffer_struct_t{
     char buffer[SIZE_KEYBOARD_BUFFER];
-    uint32_t cnt;
+    uint32_t cnt;       //counter
     uint32_t enable;
     //uint32_t cursor; // this saves for cursor operation // don't delete
 } key_buffer;
 
+/*Basic keyboard status structure*/
 struct key_status_struct{
     uint32_t shift : 1;
     uint32_t shift_r : 1;
@@ -55,6 +61,7 @@ struct key_status_struct{
     uint32_t padding : 25;
 };
 //} __attribute__ ((packed)) key_status;
+
 static union key_status_t {
     uint32_t val;
     struct key_status_struct key_status;
@@ -85,8 +92,8 @@ void init_keyboard() {
  *	effects:	Handle the keyboard interrup and display corresponding key on screen
  */
 void keyboard_handler(){
-    uint32_t char_index;
-    char key_char;
+    uint32_t char_index;    // receive the scan code
+    char key_char;          // corresponding key value
     int i;
     cli();
 
@@ -152,11 +159,13 @@ void keyboard_handler(){
         }
         goto END;
     }
+    // check whether in range
     if(char_index < KEY_NUM){
         key_char = keymap[char_index];
+        // check for NULL value
         if(key_char != '\0'){
             if (key_char >= 'a' && key_char <= 'z'){
-                // check for  ctrl + l
+                // check for  ctrl + l, which means clearing the screen
                 if (key_char == 'l' && (key_status.ctrl | key_status.ctrl_r)){
                     //key_buffer.cnt = 0;
                     clear();
@@ -181,6 +190,7 @@ void keyboard_handler(){
             
             goto END;
         }
+        // cases for special keys
         switch (char_index){
             case ENTER:
                 if(key_buffer.cnt < SIZE_KEYBOARD_BUFFER){
@@ -228,6 +238,13 @@ void keyboard_handler(){
                 break;
         }
     }
+    // while(1){
+    //     // Check whether the input value is in range for reasonable key
+    //     if((inb(KEY_DATAPORT) > 0) && (inb(KEY_DATAPORT) < KEY_NUM)){
+    //         pressed_key = inb(KEY_DATAPORT);
+    //         break;
+    //     }
+    // }
 
 END:
     send_eoi(IRQ_KEYBOARD);
@@ -235,17 +252,41 @@ END:
     return;
 }
 
+/*
+ *	Function: keyboard_open
+ *	Description: Enable the keyboard operations
+ *	inputs:		None
+ *	outputs:	0 for success
+ *	effects:	None
+ */
 int32_t keyboard_open(){
     enable_irq(IRQ_KEYBOARD);
     return 0;
 }
 
+/*
+ *	Function: terminal_open
+ *	Description: Enable and initialize the terminal
+ *	inputs:		filename - name of the file
+ *	outputs:	0 for success
+ *	effects:	None
+ */
 int32_t terminal_open(const uint8_t* filename){
     key_buffer.cnt = 0;
     key_buffer.enable = 0;
     return 0;
 }
 
+/*
+ *	Function: terminal_read
+ *	Description: This function reads for the terminal from a provided buffer,
+ *               and return the number of read bytes
+ *	inputs:		fd - fd from the main function of ece391ls.c
+ *              buffer - provided buffer, include the content to be read
+ *              nbytes - Number of bytes to be read
+ *	outputs:	None
+ *	effects:	Include buffer contents copy
+ */
 int32_t terminal_read(int32_t fd, char* buffer, int32_t nbytes){
     int32_t nbytes_read;
     key_buffer.cnt = 0;
@@ -264,6 +305,16 @@ int32_t terminal_read(int32_t fd, char* buffer, int32_t nbytes){
     return nbytes_read;
 }
 
+/*
+ *	Function: terminal_write
+ *	Description: This function writes for the terminal to a provided buffer,
+ *               and return the number of written bytes
+ *	inputs:		fd - fd from the main function of ece391ls.c
+ *              buffer - provided buffer to be written into
+ *              nbytes - Number of bytes to be write
+ *	outputs:	None
+ *	effects:	Call the putc function
+ */
 int32_t terminal_write(int32_t fd, const char* buffer, int32_t nbytes){
     int i;
     int32_t nbytes_write = 0;
@@ -277,6 +328,13 @@ int32_t terminal_write(int32_t fd, const char* buffer, int32_t nbytes){
     return nbytes_write;
 }
 
+/*
+ *	Function: terminal_close
+ *	Description: This function closes the terminal
+ *	inputs:		fd - fd from the main function of ece391ls.c
+ *	outputs:	0 for success
+ *	effects:	None
+ */
 int32_t terminal_close(int32_t fd){
     key_buffer.cnt = 0;
     key_buffer.enable = 0;

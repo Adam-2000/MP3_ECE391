@@ -12,6 +12,9 @@
 #define IRQ_KEYBOARD	1           // Keyboard connected to the IRQ1 of PIC
 #define KEY_DATAPORT    0x60        // Keyboard passes in data through this port
 #define NULL_KEY	    '\0'        // Some keys are defined to be NULL with value '\0'
+#include "types.h"
+#include "i8259.h"
+#include "x86_desc.h"
 
 #define SIZE_KEYBOARD_BUFFER 128
 #define SCREEN_WIDTH    80
@@ -20,8 +23,9 @@
 #include "lib.h"
 /* init the keyboard */
 extern void init_keyboard();
+#include "lib.h"
 
-/* Keyboard handler */
+/* Keyboard handlers */
 extern void keyboard_handler();
 
 extern int32_t terminal_open(const uint8_t* filename);
