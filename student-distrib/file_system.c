@@ -46,7 +46,7 @@ void file_system_init(uint32_t module_start){
 int32_t read_dentry_by_name (const uint8_t* fname, dentry_t* dentry){
     int i;
     uint32_t fname_len = strlen((int8_t*)fname);
-    if (fname_len > NAME_LEN - 1){
+    if (fname_len > NAME_LEN){
         return -1;
     }
 
@@ -133,11 +133,12 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 
 
 int32_t file_read(int32_t fd, void* buf, int32_t nbytes){  
+    int32_t byte_num;
     if (buf == NULL || nbytes < 0 || fd_dummy.inode_idx <= 0){
         return -1;
     }
-    fd_dummy.offset_rec += read_data(fd_dummy.inode_idx, fd_dummy.offset_rec, (uint8_t*)buf, nbytes);
-    return 0;
+    fd_dummy.offset_rec += byte_num = read_data(fd_dummy.inode_idx, fd_dummy.offset_rec, (uint8_t*)buf, nbytes);
+    return byte_num;
 }
 
 int32_t file_open(const uint8_t* filename){
@@ -174,15 +175,18 @@ int32_t directory_read(int32_t fd, void* buf, int32_t nbytes) {
     int i;
     uint8_t* buffer;
     // only read one file name at a time
-    if (fd_dummy.inode_idx != 0 || nbytes != NAME_LEN || fd_dummy.offset_rec >= boot_block->dentry_num){
+    if (fd_dummy.inode_idx != 0 || nbytes != NAME_LEN){
         return -1;
+    }
+    if (fd_dummy.offset_rec >= boot_block->dentry_num){
+        return 0;
     }
     buffer = (uint8_t*) buf;
     for(i = 0; i < NAME_LEN; i++){
         buffer[i] = dentry_start[fd_dummy.offset_rec].file_name[i];
     }
     fd_dummy.offset_rec++;
-    return 0;
+    return NAME_LEN;
 
 }
 
