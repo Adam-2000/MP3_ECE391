@@ -1,13 +1,14 @@
 #include "rtc.h"
 
-/* void RTC_INIT(void) 
+//static volatile uint32_t rtc_counter;
+volatile uint32_t rtc_counter;
+
+
+/* void rtc_open(const uint8_t* filename)
     Inputs: none
     Outputs: none 
     func: init the rtc 
 */
-volatile uint32_t rtc_counter;
-//static volatile uint32_t rtc_counter;
-
 int32_t rtc_open(const uint8_t* filename)
 {
     uint8_t prev;

@@ -136,7 +136,15 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 }
 
 
-
+/*
+ *  file_read
+ *   DESCRIPTION: read the file, set fd
+ *   INPUTS: buf -- pointer to the output read buffer
+ *          nbytes -- number of bytes to read
+ *   OUTPUTS: none
+ *   RETURN VALUE: number of bytes read
+ *                 -1 -- fail
+ */
 int32_t file_read(int32_t fd, void* buf, int32_t nbytes){  
     int32_t byte_num;
     if (buf == NULL || nbytes < 0 || fd_dummy.inode_idx <= 0){
@@ -146,6 +154,14 @@ int32_t file_read(int32_t fd, void* buf, int32_t nbytes){
     return byte_num;
 }
 
+/*
+ *  file_open
+ *   DESCRIPTION: open a file by its name
+ *   INPUTS: filename -- the name of the file
+ *   OUTPUTS: none
+ *   RETURN VALUE: 0 -- success
+ *                 -1 -- fail
+ */
 int32_t file_open(const uint8_t* filename){
     int ret;
     dentry_t tem_dentry;
@@ -157,25 +173,63 @@ int32_t file_open(const uint8_t* filename){
     return 0;
 }
 
+/*
+ *  file_write
+ *   DESCRIPTION: should not be called
+ *   INPUTS: none
+ *   OUTPUTS: none
+ *   RETURN VALUE: -1 -- fail
+ */
 int32_t file_write(int32_t fd, const void* buf, int32_t nbytes){
     return -1;
 }
 
+/*
+ *  file_close
+ *   DESCRIPTION: close a opened file
+ *   INPUTS: none
+ *   OUTPUTS: none
+ *   RETURN VALUE: 0 -- success
+ */
 int32_t file_close(int32_t fd){
     fd_dummy.inode_idx = -1;
     return 0;
 }
 
+/*
+ *  directory_open
+ *   DESCRIPTION: open a directory by its name
+ *   INPUTS: filename -- the name of the directory
+ *   OUTPUTS: none
+ *   RETURN VALUE: 0 -- success
+ *                 -1 -- fail
+ */
 int32_t directory_open(const uint8_t* filename) {
     fd_dummy.inode_idx = 0;
     return 0;
 }
 
+/*
+ *  directory_close
+ *   DESCRIPTION: close the opened dir
+ *   INPUTS: none
+ *   OUTPUTS: none
+ *   RETURN VALUE: 0 -- success
+ */
 int32_t directory_close(int32_t fd) {
     fd_dummy.inode_idx = -1;
     return 0;
 }
 
+/*
+ *  directory_read
+ *   DESCRIPTION: read the directory, set fd
+ *   INPUTS: buf -- pointer to the output read buffer
+ *          nbytes -- number of bytes to read
+ *   OUTPUTS: none
+ *   RETURN VALUE: number of bytes read
+ *                 -1 -- fail
+ */
 int32_t directory_read(int32_t fd, void* buf, int32_t nbytes) {
     int i;
     uint8_t* buffer;
@@ -195,6 +249,13 @@ int32_t directory_read(int32_t fd, void* buf, int32_t nbytes) {
 
 }
 
+/*
+ *  directory_write
+ *   DESCRIPTION: should not be called
+ *   INPUTS: none
+ *   OUTPUTS: none
+ *   RETURN VALUE: -1 -- fail
+ */
 int32_t directory_write(int32_t fd, const void* buf, int32_t nbytes){
     return -1;
 }
