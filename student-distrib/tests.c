@@ -82,17 +82,17 @@ int key_test(){
  * Coverage: Load IDT, IDT definition
  * Files: x86_desc.h/S
  */
-int rtc_test(){
-	TEST_HEADER;
-	uint32_t old = 0;
-	while(1){
-		if (old != rtc_counter){
-			old = rtc_counter;
-			printf("rtc counter= %d\n", old);
-		}
-	}
-	return PASS;
-}
+// int rtc_test(){
+// 	TEST_HEADER;
+// 	uint32_t old = 0;
+// 	while(1){
+// 		if (old != rtc_counter){
+// 			old = rtc_counter;
+// 			printf("rtc counter= %d\n", old);
+// 		}
+// 	}
+// 	return PASS;
+// }
 
 /* syscall Test - Example
  * 
@@ -186,25 +186,32 @@ int devide_zero(){
 	return FAIL;
 }
 
+/* file_test()
+* description: test the file system
+* Inputs: None
+* Outputs: None
+* Side Effects: none
+*/
 int file_test(){
     uint8_t fname1[NAME_LEN] = "frame0.txt";
 	uint8_t fname2[NAME_LEN+2] = "verylargetextwithverylongname.txt";
 	//uint8_t fname3[NAME_LEN] = "fish";
 	
     int32_t bytes_to_read  = BLOCK_SIZE;
-    uint8_t block_buf[BLOCK_SIZE] = {};
+    uint8_t block_buf[BLOCK_SIZE];
     int32_t bytes_read;
     int32_t total_read_time = 0;
 	int32_t total_read_bytes = 0;
     int i;
-    clear();			
+    clear();		
+	set_cursor(0, 0);	
 	int32_t fd;
 	int32_t fd2;
 	fd = file_open(fname1);
 	//printf("%s's node index is %d\n",fname1,fd);
 	bytes_read = file_read(fd , block_buf, bytes_to_read);
-	for(i =0; i <BLOCK_SIZE ;i++){
-	    if(block_buf[i] != NULL){
+	for(i =0; i <bytes_read ;i++){
+	    if(block_buf[i] != '\0'){
 	        putc(block_buf[i]);
 	    }
 	}
@@ -244,6 +251,91 @@ int file_test(){
     return PASS;
 }
 
+/* directory_test()
+* description: test the file system
+* Inputs: None
+* Outputs: None
+* Side Effects: none
+*/
+int directory_test(){
+    uint8_t fname1[NAME_LEN] = ".";
+	//uint8_t fname3[NAME_LEN] = "fish";
+	
+    int32_t bytes_to_read  = NAME_LEN;
+    uint8_t block_buf[NAME_LEN];
+    int32_t bytes_read;
+    int32_t total_read_time = 0;
+	int32_t total_read_bytes = 0;
+    int i;
+    clear();		
+	set_cursor(0, 0);	
+	int32_t fd;
+	fd = directory_open(fname1);
+	//printf("%s's node index is %d\n",fname1,fd);
+
+	printf("ls: ");
+    while(1){
+        bytes_read = directory_read(fd , block_buf, bytes_to_read);
+        for(i =0; i <bytes_read ;i++){
+            if(block_buf[i] != NULL){
+                putc(block_buf[i]);
+            }
+        }
+        printf(" ");
+
+        total_read_time ++;
+		total_read_bytes += bytes_read;
+
+        if(bytes_read == 0){
+            printf("\nreached the end of the dir\n");
+            break;
+		}
+    }	
+	printf("\n");
+	printf("read directory success\n");     
+	printf("total read times is %d\ntotal read bytes %d B\n",total_read_time,total_read_bytes);
+
+	char readbuf[10];
+	printf("input anything and enter to continue\n");
+	terminal_read(0, readbuf, 10);
+
+    return PASS;
+}
+/* rtc Test
+ * test for the frequency 
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: Load IDT, IDT definition
+ * Files: x86_desc.h/S
+ */
+int rtc_test(){
+	TEST_HEADER;
+	rtc_open((int8_t*)0);
+	clear();
+	set_cursor(0, 0);
+	int i;
+	printf("feel the frequecy of 2HZ\n");
+	for (i = 0; i < 10;){
+		set_cursor(0, 1);
+		printf("%u", rtc_counter);
+		rtc_read(0, NULL, 0);
+		i++;
+	}
+
+	clear();
+	set_cursor(0, 0);
+	uint32_t new_freq = 8;
+	rtc_write(0, &new_freq, 4);
+	printf("feel the frequecy of 8HZ\n");
+	for (i = 0; i < 40;){
+		set_cursor(0, 1);
+		printf("%u", rtc_counter);
+		rtc_read(0, NULL, 0);
+		i++;
+	}
+	return PASS;
+}
 // add more tests here
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
@@ -269,8 +361,15 @@ void launch_tests(){
 	// TEST_OUTPUT("devide_zero", devide_zero());
 
 	printf("*********************\n");
+	TEST_OUTPUT("rtc_test", rtc_test());
+
+	printf("*********************\n");
+	TEST_OUTPUT("directory_test", directory_test());
+
+	printf("*********************\n");
 	TEST_OUTPUT("file_test", file_test());
 
 	printf("*********************\n");
 	TEST_OUTPUT("key_test", key_test());
+
 }

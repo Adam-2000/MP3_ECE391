@@ -28,6 +28,8 @@ Solution: Because when we use 20 bit table base address, we would add 12 zero at
           make it as 32-bit variable. Thus we need to shift to right 12 bits when we store it, then after 
           adding 12 zero, the value of the first page table would be correct.
 
+
+
 Bug #3
 Date: 2021.03.21
 Handler: Chen Yize
@@ -51,3 +53,13 @@ Detail: When implementing the rtc_handler, we can not directly have the test's o
 Solution: Firstly we need to change the order of rtc_eoi & interrupt_test. Small bugs fits here is also the or
 	gate with REGB_OFFSET with RTC_NMI (non-maskable Interrupt). Besides, in preset.s file that 
 	we need to modify and make the function name to be settled.
+
+
+Bug #6
+Date: 2021.03.29
+Handler: Huang Tianhao
+Detail: the verylongnamefile.... cannot be read
+Solution: the name length can actually be 33, because it's not '\0' terminated. So carefully compare the 32 chars of two to fix the bug.
+
+
+
