@@ -311,7 +311,7 @@ int directory_test(){
  */
 int rtc_test(){
 	TEST_HEADER;
-	rtc_open((int8_t*)0);
+	rtc_open((uint8_t*)0);
 	clear();
 	set_cursor(0, 0);
 	int i;
