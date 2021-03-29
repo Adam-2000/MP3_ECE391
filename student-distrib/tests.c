@@ -64,7 +64,7 @@ int key_test(){
 	char buffer[128];
 	uint32_t ret;
 	while(1){
-		printf("starting reading:\n");
+		printf("\nstarting reading:\n");
 		ret = terminal_read(0, buffer, 128);
 		printf("# bytes:%u\n", ret);
 		printf("what have you typed:\n");
@@ -267,9 +267,10 @@ void launch_tests(){
 
 	// printf("*********************\n");
 	// TEST_OUTPUT("devide_zero", devide_zero());
-	//printf("*********************\n");
-	//TEST_OUTPUT("key_test", key_test());
 
 	printf("*********************\n");
 	TEST_OUTPUT("file_test", file_test());
+
+	printf("*********************\n");
+	TEST_OUTPUT("key_test", key_test());
 }
