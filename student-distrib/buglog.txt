@@ -61,5 +61,10 @@ Handler: Huang Tianhao
 Detail: the verylongnamefile.... cannot be read
 Solution: the name length can actually be 33, because it's not '\0' terminated. So carefully compare the 32 chars of two to fix the bug.
 
+Bug #7
+Date: 2021.03.27
+Handler: Chen Yize
+Detail: When initialize the file system, it pops page fault exception
+Solution: evocate the initialization function when checking flag bit 3, when determined the address of module.
 
 
