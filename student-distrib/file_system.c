@@ -47,13 +47,18 @@ int32_t read_dentry_by_name (const uint8_t* fname, dentry_t* dentry){
     int i;
     uint32_t fname_len = strlen((int8_t*)fname);
     if (fname_len > NAME_LEN){
-        return -1;
+        fname_len = NAME_LEN;
     }
 
     // search along the dentry in boot_block
     uint32_t tem_len;
     for (i = 0; i < boot_block->dentry_num; i++){
+        tem_len = strlen((int8_t*)dentry_start[i].file_name);
+        //printf("file_name is %s,index is %d,length is %d\n",(int8_t*)dentry_start[i].file_name,dentry_start[i].inode_index,tem_len);
         //check whether they are the same
+        if (tem_len > NAME_LEN ){
+            tem_len = NAME_LEN;
+        }
         if (fname_len == tem_len){
             if (!strncmp((int8_t*)fname, (int8_t*)dentry_start[i].file_name, NAME_LEN)){
                 return read_dentry_by_index(i, dentry);
@@ -143,8 +148,8 @@ int32_t file_read(int32_t fd, void* buf, int32_t nbytes){
 
 int32_t file_open(const uint8_t* filename){
     int ret;
-    dentry_t* tem_dentry;
-    ret = read_dentry_by_name (filename, tem_dentry);
+    dentry_t tem_dentry;
+    ret = read_dentry_by_name (filename, &tem_dentry);
     if(ret != 0){
         return -1;
     }

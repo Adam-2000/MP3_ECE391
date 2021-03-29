@@ -3,6 +3,7 @@
 #include "lib.h"
 #include "rtc.h"
 #include "keyboard.h"
+#include "file_system.h"
 #define PASS 1
 #define FAIL 0
 
@@ -185,6 +186,63 @@ int devide_zero(){
 	return FAIL;
 }
 
+int file_test(){
+    uint8_t fname1[NAME_LEN] = "frame0.txt";
+	uint8_t fname2[NAME_LEN+2] = "verylargetextwithverylongname.txt";
+	//uint8_t fname3[NAME_LEN] = "fish";
+	
+    int32_t bytes_to_read  = BLOCK_SIZE;
+    uint8_t block_buf[BLOCK_SIZE] = {};
+    int32_t bytes_read;
+    int32_t total_read_time = 0;
+	int32_t total_read_bytes = 0;
+    int i;
+    clear();			
+	int32_t fd;
+	int32_t fd2;
+	fd = file_open(fname1);
+	//printf("%s's node index is %d\n",fname1,fd);
+	bytes_read = file_read(fd , block_buf, bytes_to_read);
+	for(i =0; i <BLOCK_SIZE ;i++){
+	    if(block_buf[i] != NULL){
+	        putc(block_buf[i]);
+	    }
+	}
+	printf("\n");
+	printf("read %s success, total read %d bytes\n",fname1,bytes_read);	       
+	file_close(fd);
+
+	char readbuf[10];
+	printf("input anything and enter to continue\n");
+	terminal_read(0, readbuf, 10);
+
+	fd2 = file_open(fname2);
+	//printf("%s's node index is %d\n",fname2,fd2);
+    while(1){
+        bytes_read = file_read(fd2, block_buf, bytes_to_read);
+        for(i =0; i <bytes_read ;i++){
+            if(block_buf[i] != NULL){
+                putc(block_buf[i]);
+            }
+        }
+        printf("\n");
+        printf("bytes_read: %d\n",bytes_read);
+
+        total_read_time ++;
+		total_read_bytes += bytes_read;
+
+        if(bytes_read == 0){
+            printf("reached the end of the file\n");
+            break;
+		}
+    }	
+	printf("\n");
+	printf("contine read verylargetextwithverylongname.txt success\n");     
+	printf("total read times is %d\ntotal read bytes %d B\n",total_read_time,total_read_bytes);
+
+
+    return PASS;
+}
 
 // add more tests here
 /* Checkpoint 2 tests */
@@ -209,6 +267,9 @@ void launch_tests(){
 
 	// printf("*********************\n");
 	// TEST_OUTPUT("devide_zero", devide_zero());
+	//printf("*********************\n");
+	//TEST_OUTPUT("key_test", key_test());
+
 	printf("*********************\n");
-	TEST_OUTPUT("key_test", key_test());
+	TEST_OUTPUT("file_test", file_test());
 }
