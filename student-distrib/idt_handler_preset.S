@@ -44,24 +44,6 @@ name:                                   ;\
     sti             ;\
     iret
 
-
-.globl system_call
-system_call:
-    cli                 
-    push_all_reg    
-    pushl %edx
-    pushl %ecx
-    pushl %ebx
-    pushl %eax
-    call system_call_func   
-    popl %eax
-    popl %ebx
-    popl %ecx
-    popl %edx 
-    pop_all_reg     
-    sti             
-    iret
-
 //handlr_1_interrput(timer_chip,      timer_chip_func)
 handlr_1_interrput(keyboard,        keyboard_handler)
 //handlr_1_interrput(serial_port,     serial_port_func)
@@ -89,3 +71,39 @@ handlr_1_exception(alignment_check,         exception_alignment_check)
 handlr_1_exception(machine_check,           exception_machine_check)
 handlr_1_exception(simd_floating_point,     exception_simd_floating_point)
 
+.globl system_call
+system_call:              
+    pushl %ebp
+    pushl %esi
+    pushl %edi
+    // check for valid system call index
+    cmpl $1, %eax
+    jb invalid_system_call
+    cmpl $10, %eax
+    ja invalid_system_call
+    // push three arguments
+    pushl %edx
+    pushl %ecx
+    pushl %ebx
+    call *syscall_jumptable - 4(, %eax, 4)
+    popl %ebx
+    popl %ecx
+    popl %edx  
+    jmp end_system_call
+invalid_system_call:
+    movl $-1, %eax
+end_system_call:
+    popl %edi  
+    popl %esi
+    popl %ebp  
+    iret
+
+syscall_jumptable:
+    .long halt_handler, execute_handler, read_handler, write_handler, open_handler, close_handler
+    .long getargs_handler, vidmap_handler, set_handler, sigreturn_handler
+
+getargs_handler:
+vidmap_handler:
+set_handler_handler:
+sigreturn_handler:
+    .long 0 // padding

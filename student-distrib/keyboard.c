@@ -320,7 +320,7 @@ int32_t terminal_write(int32_t fd, const char* buffer, int32_t nbytes){
     int32_t nbytes_write = 0;
     for (i = 0; i < nbytes; i++){
         if(buffer[i] == '\0'){
-            break;
+            //break;
         }
         putc(buffer[i]);
         nbytes_write++;

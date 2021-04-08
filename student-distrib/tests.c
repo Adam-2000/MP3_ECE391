@@ -193,8 +193,8 @@ int devide_zero(){
 * Side Effects: none
 */
 int file_test(){
-    uint8_t fname1[NAME_LEN] = "frame0.txt";
-	uint8_t fname2[NAME_LEN+2] = "verylargetextwithverylongname.txt";
+    uint8_t fname1[NAME_LEN] = "hello";
+	uint8_t fname2[NAME_LEN+2] = "fish";
 	//uint8_t fname3[NAME_LEN] = "fish";
 	
     int32_t bytes_to_read  = BLOCK_SIZE;
@@ -202,7 +202,7 @@ int file_test(){
     int32_t bytes_read;
     int32_t total_read_time = 0;
 	int32_t total_read_bytes = 0;
-    int i;
+    int i, j;
     clear();		
 	set_cursor(0, 0);	
 	int32_t fd;
@@ -225,7 +225,8 @@ int file_test(){
 
 	fd2 = file_open(fname2);
 	//printf("%s's node index is %d\n",fname2,fd2);
-    while(1){
+	j = 0;
+    while(j < 2){
         bytes_read = file_read(fd2, block_buf, bytes_to_read);
         for(i =0; i <bytes_read ;i++){
             if(block_buf[i] != NULL){
@@ -242,6 +243,7 @@ int file_test(){
             printf("reached the end of the file\n");
             break;
 		}
+		j++;
     }	
 	printf("\n");
 	printf("contine read verylargetextwithverylongname.txt success\n");     
@@ -360,14 +362,14 @@ void launch_tests(){
 	// printf("*********************\n");
 	// TEST_OUTPUT("devide_zero", devide_zero());
 
-	printf("*********************\n");
-	TEST_OUTPUT("rtc_test", rtc_test());
+	// printf("*********************\n");
+	// TEST_OUTPUT("rtc_test", rtc_test());
 
-	printf("*********************\n");
-	TEST_OUTPUT("directory_test", directory_test());
+	// printf("*********************\n");
+	// TEST_OUTPUT("directory_test", directory_test());
 
-	printf("*********************\n");
-	TEST_OUTPUT("file_test", file_test());
+	// printf("*********************\n");
+	// TEST_OUTPUT("file_test", file_test());
 
 	printf("*********************\n");
 	TEST_OUTPUT("key_test", key_test());
