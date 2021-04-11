@@ -96,6 +96,7 @@ int32_t execute_helper(const uint8_t* command){
     for (i = 0; i < MAX_PROCESS_NUMBER; i++){
         if (process_number_array[i] == 0){
             new_process_number = i;
+            process_number_array[i] = 1;
             break;
         }
     }
@@ -117,7 +118,7 @@ int32_t execute_helper(const uint8_t* command){
     pcb_ptr = new_pcb_ptr;
     cur_process_number = new_process_number;
     printf("IN FUNCTION: EXECUTE_HELPER:\nprocess_number = %d\npcb:%x, %x, %x, %d\n", cur_process_number, pcb_ptr->eip_val, pcb_ptr->esp_val, pcb_ptr->ebp_val, pcb_ptr->parent_process_number);
-    tss.esp0 = KERNEL_END - KERNEL_STACK_WIDTH * new_process_number;
+    tss.esp0 = KERNEL_END - KERNEL_STACK_WIDTH * new_process_number - 4;
     printf("IN FUNCTION: EXECUTE_HELPER: ANYWAY AT END:\n");
     return (int32_t) pcb_ptr;
 }
@@ -144,8 +145,8 @@ int32_t halt_helper(uint8_t status){
     pcb_ptr->esp_val = old_pcb_ptr->esp_val;
     pcb_ptr->ebp_val = old_pcb_ptr->ebp_val;
     // reset esp0
-    tss.esp0 = KERNEL_END - KERNEL_STACK_WIDTH * old_process_number;
-    if (ret == 0){
+    tss.esp0 = KERNEL_END - KERNEL_STACK_WIDTH * old_process_number - 4;
+    if (ret == HALT_MAGIC_NUMBER){
         ret = 256;
     }
     return ret;

@@ -14,6 +14,7 @@
 #define PAGE_SIZE_BIG 0x400000 //4MB
 #define IMG_BIG_START 0x8000000 //128MB
 #define PROGRAM_IMG_VIRT_ADDR 0x08048000
+#define HALT_MAGIC_NUMBER 0x98
 
 #ifndef ASM
 //#include "lib.h"

@@ -345,7 +345,7 @@ int rtc_test(){
 int execute_test(){
 	TEST_HEADER;
 	int ret;
-	char cmd[33] = "pingpong";
+	char cmd[33] = "fish";
 	ret = execute((uint8_t*)cmd);
 	if (ret == -1){
 		return FAIL;
