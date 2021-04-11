@@ -287,10 +287,15 @@ int32_t terminal_open(const uint8_t* filename){
  *	outputs:	None
  *	effects:	Include buffer contents copy
  */
-int32_t terminal_read(int32_t fd, char* buffer, int32_t nbytes){
+int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
     int32_t nbytes_read;
     key_buffer.cnt = 0;
     key_buffer.enable = 1;
+    char* buffer = (char*) buf;
+    if (buffer == NULL){
+        printf("terminal_read: null buffer\n");
+        return -1;
+    }
     while(1){
         if(key_buffer.cnt > 0){
             if(key_buffer.buffer[key_buffer.cnt - 1] == '\n'){
@@ -315,9 +320,14 @@ int32_t terminal_read(int32_t fd, char* buffer, int32_t nbytes){
  *	outputs:	None
  *	effects:	Call the putc function
  */
-int32_t terminal_write(int32_t fd, const char* buffer, int32_t nbytes){
+int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
     int i;
     int32_t nbytes_write = 0;
+    char* buffer = (char*) buf;
+    if (buffer == NULL){
+        printf("terminal_write: null buffer\n");
+        return -1;
+    }
     for (i = 0; i < nbytes; i++){
         if(buffer[i] == '\0'){
             //break;

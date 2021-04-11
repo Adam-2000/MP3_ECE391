@@ -6,7 +6,7 @@
 #define _LIB_H
 
 #include "types.h"
-
+#ifndef ASM
 int32_t printf(int8_t *format, ...);
 void putc(uint8_t c);
 int32_t removec();
@@ -157,3 +157,4 @@ do {                                    \
 } while (0)
 
 #endif /* _LIB_H */
+#endif

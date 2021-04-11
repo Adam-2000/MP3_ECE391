@@ -20,3 +20,16 @@ change_control_reg:
   
   leave
   ret
+
+.globl reload_cr3
+.align 4
+# do this process following the OSDev
+reload_cr3:
+  pushl %ebp
+  movl  %esp, %ebp
+  movl  8(%ebp), %eax     
+
+  movl %eax, %cr3   # put directory into cr3
+  
+  leave
+  ret

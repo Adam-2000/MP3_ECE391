@@ -4,6 +4,7 @@
 #include "rtc.h"
 #include "keyboard.h"
 #include "file_system.h"
+#include "system_calls.h"
 #define PASS 1
 #define FAIL 0
 
@@ -341,6 +342,16 @@ int rtc_test(){
 // add more tests here
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
+int execute_test(){
+	TEST_HEADER;
+	int ret;
+	char cmd[33] = "pingpong";
+	ret = execute((uint8_t*)cmd);
+	if (ret == -1){
+		return FAIL;
+	}
+	return PASS;
+}
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 /* Test suite entry point */
@@ -371,7 +382,8 @@ void launch_tests(){
 	// printf("*********************\n");
 	// TEST_OUTPUT("file_test", file_test());
 
-	printf("*********************\n");
-	TEST_OUTPUT("key_test", key_test());
+	// printf("*********************\n");
+	// TEST_OUTPUT("key_test", key_test());
+	TEST_OUTPUT("execute_test", execute_test());
 
 }

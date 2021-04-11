@@ -12,6 +12,8 @@
 #define START_KERNAL_ADDR 0X400000
 #define VEDIO_MEM 0xB8000
 #define PDE_RESERVE_FOR4KB 12   //num of bits reserved
+#define USER_PAGE_ADDR 0X8000000 //128 MB the user stack address in virtual mem
+
 #ifndef ASM
 
 // struct for both two types of pde
@@ -50,5 +52,6 @@ extern paging_table_entry_t page_table[NUM_ENTRY] __attribute__((aligned(ALINED_
 
 extern void paging_init(void);
 
+extern void set_paging_directory(uint32_t phy_addr);
 #endif
 #endif

@@ -2,6 +2,7 @@
 #define _FILE_SYSTEM_H
 
 #include "types.h"
+#include "system_calls_c.h"
 
 #define DIR_NUM 63
 #define NAME_LEN 32
@@ -39,11 +40,30 @@ typedef struct data_block{
     uint8_t data_block_content[BLOCK_SIZE];
 }data_block_t;
 
+typedef struct fop_table{
+    int32_t (*read) (int32_t fd, void* buf, int32_t nbytes);
+    int32_t (*write)(int32_t fd, const void* buf, int32_t nbytes);
+    int32_t (*open)(const uint8_t* filename);
+    int32_t (*close) (int32_t fd);
+}fop_table_t;
+
 /*fd stucture*/
-typedef struct file_descriptor_dummy{
-    int32_t offset_rec;
-    int32_t inode_idx;
-}file_descriptor_dummy_t;
+typedef struct file_descriptor{
+    fop_table_t* fop;
+    uint32_t inode_idx;
+    uint32_t file_position;
+    uint32_t flags;
+}file_descriptor_t;
+
+typedef struct pcb{
+    uint32_t eip_val;
+    uint32_t esp_val;
+    uint32_t ebp_val;
+    int parent_process_number;
+    //pcb_t* parent_pcb_ptr;
+    //uint32_t physical_addr; 
+    file_descriptor_t fda[6];
+}pcb_t;
 
 /*initialize file system*/
 void file_system_init(uint32_t module_start);

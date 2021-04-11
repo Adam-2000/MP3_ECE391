@@ -76,6 +76,24 @@ void paging_init(){
     change_control_reg((int)page_directory);
 }                                                                                                  
 
+void set_paging_directory(uint32_t phy_addr){
+    if (phy_addr == NULL){
+        return;
+    }
+    int i = USER_PAGE_ADDR/ALINED_4K/NUM_ENTRY;
+    page_directory[i].present = 1;
+    page_directory[i].r_w = 1;
+    page_directory[i].u_s = 1; 
+    page_directory[i].pwt = 0;
+    page_directory[i].pcd = 0; 
+    page_directory[i].access = 0;
+    page_directory[i].reserved = 0; 
+    page_directory[i].page_size = 1;
+    page_directory[i].table_addr = (phy_addr/ALINED_4K/NUM_ENTRY)<<10;
+
+    reload_cr3((int)page_directory);
+    printf("SET PAGING DIRECTORY: %x\n", phy_addr);
+}
 /*
     asm volatile("                                          \n\
         movl %0, %%eax                                      \n\
