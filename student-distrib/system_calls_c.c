@@ -179,6 +179,7 @@ int32_t halt_helper(uint8_t status){
     pcb_ptr->eip_val = old_pcb_ptr->eip_val;
     pcb_ptr->esp_val = old_pcb_ptr->esp_val;
     pcb_ptr->ebp_val = old_pcb_ptr->ebp_val;
+    pcb_ptr = old_pcb_ptr;
     // reset esp0
     tss.esp0 = KERNEL_END - KERNEL_STACK_WIDTH * old_process_number - 4;
     if (ret == HALT_MAGIC_NUMBER){
