@@ -341,8 +341,13 @@ int key_test(){
 int execute_test(){
 	TEST_HEADER;
 	int ret;
-	char cmd[33] = "shell";
+	char cmd[33] = "hello";
 	ret = execute((uint8_t*)cmd);
+	if (ret == -1){
+		return FAIL;
+	}
+	char cmd1[33] = "shell";
+	ret = execute((uint8_t*)cmd1);
 	if (ret == -1){
 		return FAIL;
 	}
@@ -383,6 +388,8 @@ void launch_tests(){
 
 	printf("*********************\n");
 	TEST_OUTPUT("execute_test", execute_test());
+
+	while(1);
 
 	
 

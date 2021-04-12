@@ -304,9 +304,9 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
             }
         }
     }
-    if (nbytes > 128){
-        printf("Can only read 128 bytes.\n");
-    }
+    // if (nbytes > 128){
+    //     printf("Can only read 128 bytes.\n");
+    // }
     nbytes_read = (key_buffer.cnt > nbytes) ? nbytes : key_buffer.cnt;
     memcpy(buffer, key_buffer.buffer, nbytes_read);
     key_buffer.cnt = 0;
