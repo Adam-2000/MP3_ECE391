@@ -188,6 +188,7 @@ void putc(uint8_t c) {
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
         screen_x %= NUM_COLS;
     }
+    update_cursor(screen_x, screen_y);
 }
 
 /* void upscroll();
@@ -224,6 +225,7 @@ int32_t removec(){
     *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
     *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
     return 0;
+    update_cursor();
 }
 
 /* int32_t set_cursor(uint32_t x, uint32_t y);
@@ -236,10 +238,28 @@ int32_t set_cursor(uint32_t x, uint32_t y){
     }
     screen_x = x;
     screen_y = y;
+    update_cursor();
     return 0;
 }
 
-
+void enable_cursor(uint8_t cursor_start, uint8_t cursor_end)
+{
+	outb(0x0A, 0x3D4);
+	outb((inb(0x3D5) & 0xC0) | cursor_start, 0x3D5);
+ 
+	outb(0x0B, 0x3D4);
+	outb((inb(0x3D5) & 0xE0) | cursor_end, 0x3D5);
+}
+#define VGA_WIDTH 80
+void update_cursor()
+{
+	uint16_t pos = screen_y * VGA_WIDTH + screen_x;
+ 
+	outb(0x0F, 0x3D4);
+	outb((uint8_t) (pos & 0xFF), 0x3D5);
+	outb(0x0E, 0x3D4);
+	outb((uint8_t) ((pos >> 8) & 0xFF), 0x3D5);
+}
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
  * Inputs: uint32_t value = number to convert

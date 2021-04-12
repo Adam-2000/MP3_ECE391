@@ -67,4 +67,22 @@ Handler: Chen Yize
 Detail: When initialize the file system, it pops page fault exception
 Solution: evocate the initialization function when checking flag bit 3, when determined the address of module.
 
+Date: 2021.04.11
+Handler: Chen Yize
+Problem: Cannot going into file program after execution
+Mistake: Push the current esp before iret
+Solution: push the destinate esp to iret
+
+Date: 2021.04.11
+Handler: Chen Yize
+Problem: Cannot going do proper when execute a program who execute another program
+Mistake: forget to set a process number as busy
+Solution: set a process number as busy when execution, and find another available process number when execution again.
+
+Date: 2021.04.12
+Handler: Chen Yize
+Problem: Cannot have enough fd when open file
+Mistake: forget to close file after open it
+Solution: always close a file when not using it.
+
 

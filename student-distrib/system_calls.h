@@ -29,6 +29,13 @@ extern int32_t execute_handler(const uint8_t* command);
 // extern int32_t open_handler(const uint8_t* filename);
 // extern int32_t close_handler(int32_t fd);
 
+/*
+ *	Function: system call functions
+ *	Description: These functions are system calls that called by user program
+ *	inputs:		None
+ *	outputs:	None
+ *	effects:	Push the arguments to the registers and call int 0x80
+ */
 extern int32_t halt (uint8_t status);
 extern int32_t execute (const uint8_t* command);
 extern int32_t read (int32_t fd, void* buf, int32_t nbytes);

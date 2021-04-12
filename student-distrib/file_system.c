@@ -47,6 +47,7 @@ int32_t read_dentry_by_name (const uint8_t* fname, dentry_t* dentry){
     int i;
     uint32_t fname_len = strlen((int8_t*)fname);
     if (fname_len > NAME_LEN){
+        printf("filename too long!\n");
         fname_len = NAME_LEN;
     }
 

@@ -30,7 +30,7 @@ static char keymap[KEY_NUM] = {
     '\0', '\0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\0', '\0',
 	'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\0', '\0', 'a', 's',
 	'd', 'f', 'g', 'h', 'j', 'k', 'l' , ';', '\'', '`', '\0', '\\', 'z', 'x', 'c', 'v', 
-	'b', 'n', 'm',',', '.', '/', '\0', '*', '\0', ' ', '\0'
+	'b', 'n', 'm',',', '.', '/', '\0', '\0', '\0', ' ', '\0'
 };
 
 /*Special key pad with SHIFT or CTRL*/
@@ -38,7 +38,7 @@ static char shifted_keymap[KEY_NUM] = {
     '\0', '\0', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '\0', '\0',
 	'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\0', '\0', 'A', 'S',
 	'D', 'F', 'G', 'H', 'J', 'K', 'L' , ':', '"', '~', '\0', '|', 'Z', 'X', 'C', 'V', 
-	'B', 'N', 'M','<', '>', '?', '\0', '*', '\0', ' ', '\0'
+	'B', 'N', 'M','<', '>', '?', '\0', '\0', '\0', ' ', '\0'
 };
 
 /*Basic keyboard buffer structure*/
@@ -79,6 +79,7 @@ void init_keyboard() {
     key_state.val = 0;
     key_buffer.cnt = 0;
     key_buffer.enable = 0;
+    enable_cursor(14, 15);
     //key_buffer.cursor = 0;
 	enable_irq(IRQ_KEYBOARD);
 }
@@ -303,6 +304,9 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
             }
         }
     }
+    if (nbytes > 128){
+        printf("Can only read 128 bytes.\n");
+    }
     nbytes_read = (key_buffer.cnt > nbytes) ? nbytes : key_buffer.cnt;
     memcpy(buffer, key_buffer.buffer, nbytes_read);
     key_buffer.cnt = 0;
@@ -348,5 +352,5 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
 int32_t terminal_close(int32_t fd){
     key_buffer.cnt = 0;
     key_buffer.enable = 0;
-    return 0;
+    return -1;
 }

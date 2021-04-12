@@ -11,8 +11,7 @@ void system_call_func(uint32_t id, uint32_t arg1, uint32_t arg2, uint32_t arg3){
 //     printf("system calls\n");
 //     return;
 // }
-
-static pcb_t* pcb_ptr;
+// function pointer tables for different types
 static fop_table_t fop_table_file = {
     file_read, file_write, file_open, file_close
 };
@@ -22,14 +21,32 @@ static fop_table_t fop_table_directory = {
 static fop_table_t fop_table_rtc = {
     rtc_read, rtc_write, rtc_open, rtc_close
 };
-static fop_table_t fop_table_terminal = {
-    terminal_read, terminal_write, terminal_open, terminal_close
-};
+// static fop_table_t fop_table_terminal = {
+//     terminal_read, terminal_write, terminal_open, terminal_close
+// };
+// pcb busy(1)/free(0) array
 static int process_number_array[MAX_PROCESS_NUMBER];
+// current process number
 static int cur_process_number;
+// current pcb pointer
+static pcb_t* pcb_ptr;
+
+/*
+ *	Function: get_pcb_ptr
+ *	Description: get pcb pointer
+ *	inputs:		none
+ *	outputs:	pcb pointer
+ */
 uint32_t get_pcb_ptr(){
     return (uint32_t)pcb_ptr;
 }
+
+/*
+ *	Function: system_calls_init
+ *	Description: initialize system calls
+ *	inputs:		none
+ *	outputs:	none
+ */
 void system_calls_init(){
     int i;
     process_number_array[0] = 1;
@@ -44,26 +61,34 @@ void system_calls_init(){
 }
 
 
-
+/*
+ *	Function: execute_helper
+ *	Description: helper function of execute system call
+ *	inputs:		command -- execute command
+ *	outputs:	-1 if fail
+ *              256 if exceptions
+ *              others with other meaning
+ *  Side effects: create a pcb and prepare for context switch
+ */
 int32_t execute_helper(const uint8_t* command){
     printf("IN FUNCTION: EXECUTE_HELPER, %s\n", command);
     int ret;
     int i;
     dentry_t tem_dentry;
-    uint8_t filename[33];
+    uint8_t filename[FILENAMESIZE + 1];
     uint32_t magic = 0;
     int32_t virtual_addr_1instr;
     int new_process_number;
     pcb_t* new_pcb_ptr;
     // get args for next time, first to read the filename
-    for (i = 0; i <= 32; i++){
+    for (i = 0; i <= FILENAMESIZE; i++){
         if (command[i] == ' ' || command[i] == '\0' || command[i] == '\n'){
             filename[i] = '\0';
             break;
         }
         filename[i] = command[i];
     }
-    if (i == 33){
+    if (i == FILENAMESIZE + 1){
         printf("command filename might be too long: %s\n", command);
     }
     ret = read_dentry_by_name (filename, &tem_dentry);
@@ -81,8 +106,8 @@ int32_t execute_helper(const uint8_t* command){
         printf("Error, not executable filename: %s\n", command);
         return -1;
     }
-    printf("IN FUNCTION: EXECUTE_HELPER: MAGIC NUMBER GET!, %u\n", magic);
-    ret = read_data(tem_dentry.inode_index, 24, (uint8_t*)&virtual_addr_1instr, 4);
+    //printf("IN FUNCTION: EXECUTE_HELPER: MAGIC NUMBER GET!, %u\n", magic);
+    ret = read_data(tem_dentry.inode_index, FISRT_INST_ADDR, (uint8_t*)&virtual_addr_1instr, 4);
     if(ret == -1){
         printf("Error: read_data error: first instructino\n");
         return -1;
@@ -107,7 +132,8 @@ int32_t execute_helper(const uint8_t* command){
     // set up paging
     set_paging_directory(KERNEL_END + (new_process_number - 1) * PAGE_SIZE_BIG);
     // load file into memory
-    read_data(tem_dentry.inode_index, 0, (uint8_t*)PROGRAM_IMG_VIRT_ADDR, SIZE_PROGRAM_IMG);
+    ret = read_data(tem_dentry.inode_index, 0, (uint8_t*)PROGRAM_IMG_VIRT_ADDR, SIZE_PROGRAM_IMG);
+    printf("bytes of file: %d\n", ret);
     new_pcb_ptr = (pcb_t*) (KERNEL_END - KERNEL_STACK_WIDTH * (new_process_number + 1));
     new_pcb_ptr->parent_process_number = cur_process_number;
     new_pcb_ptr->eip_val = virtual_addr_1instr;
@@ -119,13 +145,22 @@ int32_t execute_helper(const uint8_t* command){
     cur_process_number = new_process_number;
     printf("IN FUNCTION: EXECUTE_HELPER:\nprocess_number = %d\npcb:%x, %x, %x, %d\n", cur_process_number, pcb_ptr->eip_val, pcb_ptr->esp_val, pcb_ptr->ebp_val, pcb_ptr->parent_process_number);
     tss.esp0 = KERNEL_END - KERNEL_STACK_WIDTH * new_process_number - 4;
-    printf("IN FUNCTION: EXECUTE_HELPER: ANYWAY AT END:\n");
+    //printf("IN FUNCTION: EXECUTE_HELPER: ANYWAY AT END:\n");
     return (int32_t) pcb_ptr;
 }
 
+/*
+ *	Function: halt_helper
+ *	Description: helper function of halt system call
+ *	inputs:		status -- halt status
+ *	outputs:	-1 if fail
+ *              256 if exceptions
+ *              others with other meaning
+ *  Side effects: halt a process and return to father process
+ */
 int32_t halt_helper(uint8_t status){
-    printf("IN FUNCTION: HALT_HELPER\n");
-    int32_t ret = (uint32_t) status;
+    //printf("IN FUNCTION: HALT_HELPER\n");
+    int32_t ret = (int32_t) status;
     int i;
     //get old pcb
     int old_process_number = pcb_ptr->parent_process_number;
@@ -152,9 +187,16 @@ int32_t halt_helper(uint8_t status){
     return ret;
 }
 
-
+/*
+ *	Function: open_handler
+ *	Description: open system call's handler
+ *	inputs:		filename -- the filename to open
+ *	outputs:	-1 if fail
+ *              fd if success
+ *  Side effects: open a file and create a file descripter
+ */
 int32_t open_handler(const uint8_t* filename){
-    printf("IN FUNCTION: OPEN_HANDLER\n");
+    printf("IN FUNCTION: OPEN_HANDLER, open file: %s\n", filename);
     int ret;
     int fd;
     dentry_t tem_dentry;
@@ -203,8 +245,16 @@ int32_t open_handler(const uint8_t* filename){
     return -1;
 }
 
+/*
+ *	Function: close_handler
+ *	Description: close system call's handler
+ *	inputs:		fd -- file descriptor index
+ *	outputs:	-1 if fail
+ *              0 if success
+ *  Side effects: close the file descripter
+ */
 int32_t close_handler(int32_t fd){
-    printf("IN FUNCTION: CLOSE_HELPER\n");
+    printf("IN FUNCTION: CLOSE_HELPER: fd = %d\n", fd);
     int ret;
     if (fd < 2 || fd >= 8){
         printf("close_handler: invalid fd: %d\n", fd);
@@ -223,6 +273,16 @@ int32_t close_handler(int32_t fd){
     return 0;
 }
 
+/*
+ *	Function: read_handler
+ *	Description: read system call's handler
+ *	inputs:		fd -- file descriptor index
+ *              buf -- output buffer
+ *              nbytes -- number of bytes to read
+ *	outputs:	-1 if fail
+ *              number of bytes read
+ *  Side effects: put the read value to buf
+ */
 int32_t read_handler(int32_t fd, void* buf, int32_t nbytes){
     //printf("IN FUNCTION: READ_HELPER\n");
     int ret;
@@ -249,6 +309,16 @@ int32_t read_handler(int32_t fd, void* buf, int32_t nbytes){
     return ret;
 }
 
+/*
+ *	Function: write_handler
+ *	Description: write system call's handler
+ *	inputs:		fd -- file descriptor index
+ *              buf -- input buffer
+ *              nbytes -- number of bytes to write
+ *	outputs:	-1 if fail
+ *              0 if success
+ *  Side effects: write the buf value to file
+ */
 int32_t write_handler(int32_t fd, const void* buf, int32_t nbytes){
     //printf("IN FUNCTION: WRITE_HELPER\n");
     int ret;
@@ -274,3 +344,23 @@ int32_t write_handler(int32_t fd, const void* buf, int32_t nbytes){
     }
     return 0;
 }
+
+/* system call not used, implementing in next time */
+int32_t getargs_handler(uint8_t* buf, int32_t nbytes){
+    printf("IN FUNCTION: getargs_handler\n");
+    return 0;
+}
+int32_t vidmap_handler(uint8_t** screen_start){
+    printf("IN FUNCTION: vidmap_handler\n");
+    return 0;
+}
+int32_t set_handler_handler(int32_t signum, void* handler_address){
+    printf("IN FUNCTION: set_handler_handler\n");
+    return 0;
+}
+int32_t sigreturn_handler(void){
+    printf("IN FUNCTION: sigreturn_handler\n");
+    return 0;
+}
+
+

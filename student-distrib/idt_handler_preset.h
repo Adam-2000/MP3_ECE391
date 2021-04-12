@@ -2,6 +2,8 @@
 #define _IDT_HANDLER_PRESET_H
 
 #ifndef ASM
+/* functions that put in the idt table as function pointers*/
+/*exceptions*/
 void divide_error();            
 void debug();                 
 void nmi_interrupt();          
@@ -21,9 +23,11 @@ void alignment_check();
 void machine_check();           
 void simd_floating_point(); 
 
+/*interrupts*/
 void keyboard();
 void real_time_clock();
 
+/*system call function pointer in the idt*/
 void system_call();
 
 // extern int32_t halt_wrapper(uint8_t status);

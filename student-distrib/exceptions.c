@@ -12,7 +12,7 @@
  *	effects:	Raise exception and print corresponding error info "Exception: divide error"
  */
 void exception_divide_error(){
-    printf("Exception: divide error");
+    printf("Exception: divide error\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -24,7 +24,7 @@ void exception_divide_error(){
  *	effects:	Raise exception and print corresponding error info "Exception: debug"
  */
 void exception_debug(){
-    printf("Exception: debug");
+    printf("Exception: debug\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -36,7 +36,7 @@ void exception_debug(){
  *	effects:	Raise exception and print corresponding error info "Exception: nmi interrupt"
  */
 void exception_nmi_interrupt(){
-    printf("Exception: nmi interrupt");
+    printf("Exception: nmi interrupt\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -48,7 +48,7 @@ void exception_nmi_interrupt(){
  *	effects:	Raise exception and print corresponding error info "Exception: breakpoint"
  */
 void exception_breakpoint(){
-    printf("Exception: breakpoint");
+    printf("Exception: breakpoint\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -60,7 +60,7 @@ void exception_breakpoint(){
  *	effects:	Raise exception and print corresponding error info "Exception: overflow"
  */
 void exception_overflow(){
-    printf("Exception: overflow");
+    printf("Exception: overflow\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -72,7 +72,7 @@ void exception_overflow(){
  *	effects:	Raise exception and print corresponding error info "Exception: bound range exceeded"
  */
 void exception_bound_range_exceeded(){
-    printf("Exception: bound range exceeded");
+    printf("Exception: bound range exceeded\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -84,7 +84,7 @@ void exception_bound_range_exceeded(){
  *	effects:	Raise exception and print corresponding error info "Exception: invalid opcode"
  */
 void exception_invalid_opcode(){
-    printf("Exception: invalid opcode");
+    printf("Exception: invalid opcode\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -96,7 +96,7 @@ void exception_invalid_opcode(){
  *	effects:	Raise exception and print corresponding error info "Exception: device not available"
  */
 void exception_device_not_available(){
-    printf("Exception: device not available");
+    printf("Exception: device not available\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -108,7 +108,7 @@ void exception_device_not_available(){
  *	effects:	Raise exception and print corresponding error info "Exception: double fault"
  */
 void exception_double_fault(){
-    printf("Exception: double fault");
+    printf("Exception: double fault\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -120,7 +120,7 @@ void exception_double_fault(){
  *	effects:	Raise exception and print corresponding error info "Exception: invalid tss"
  */
 void exception_invalid_tss(){
-    printf("Exception: invalid tss");
+    printf("Exception: invalid tss\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -132,7 +132,7 @@ void exception_invalid_tss(){
  *	effects:	Raise exception and print corresponding error info "Exception: segment not present"
  */
 void exception_segment_not_present(){
-    printf("Exception: segment not present");
+    printf("Exception: segment not present\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -144,7 +144,7 @@ void exception_segment_not_present(){
  *	effects:	Raise exception and print corresponding error info "Exception: stack segment fault"
  */
 void exception_stack_segment_fault(){
-    printf("Exception: stack segment fault");
+    printf("Exception: stack segment fault\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -156,7 +156,7 @@ void exception_stack_segment_fault(){
  *	effects:	Raise exception and print corresponding error info "Exception: general protection"
  */
 void exception_general_protection(){
-    printf("Exception: general protection");
+    printf("Exception: general protection\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -168,7 +168,7 @@ void exception_general_protection(){
  *	effects:	Raise exception and print corresponding error info "Exception: page fault"
  */
 void exception_page_fault(){
-    printf("Exception: page fault");
+    printf("Exception: page fault\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -180,7 +180,7 @@ void exception_page_fault(){
  *	effects:	Raise exception and print corresponding error info "Exception: x87 fpu floating point error"
  */
 void exception_x87_fpu_floating_point_error(){
-    printf("Exception: x87 fpu floating point error");
+    printf("Exception: x87 fpu floating point error\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -192,7 +192,7 @@ void exception_x87_fpu_floating_point_error(){
  *	effects:	Raise exception and print corresponding error info "Exception: alignment check"
  */
 void exception_alignment_check(){
-    printf("Exception: alignment check");
+    printf("Exception: alignment check\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -204,7 +204,7 @@ void exception_alignment_check(){
  *	effects:	Raise exception and print corresponding error info "Exception: machine check"
  */
 void exception_machine_check(){
-    printf("Exception: machine check");
+    printf("Exception: machine check\n");
     halt(HALT_MAGIC_NUMBER);
 }
 
@@ -216,7 +216,7 @@ void exception_machine_check(){
  *	effects:	Raise exception and print corresponding error info "Exception: simd floating point"
  */
 void exception_simd_floating_point(){
-    printf("Exception: simd floating point");
+    printf("Exception: simd floating point\n");
     halt(HALT_MAGIC_NUMBER);
 }
 #endif

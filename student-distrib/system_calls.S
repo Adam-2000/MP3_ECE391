@@ -80,5 +80,3 @@ DO_CALL(getargs,SYS_GETARGS)
 DO_CALL(vidmap,SYS_VIDMAP)
 DO_CALL(set_handler,SYS_SET_HANDLER)
 DO_CALL(sigreturn,SYS_SIGRETURN)
-
-

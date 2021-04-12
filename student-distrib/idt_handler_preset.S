@@ -101,9 +101,3 @@ end_system_call:
 syscall_jumptable:
     .long halt_handler, execute_handler, read_handler, write_handler, open_handler, close_handler
     .long getargs_handler, vidmap_handler, set_handler, sigreturn_handler
-
-getargs_handler:
-vidmap_handler:
-set_handler_handler:
-sigreturn_handler:
-    .long 0 // padding

@@ -15,6 +15,8 @@
 #define IMG_BIG_START 0x8000000 //128MB
 #define PROGRAM_IMG_VIRT_ADDR 0x08048000
 #define HALT_MAGIC_NUMBER 0x98
+#define FILENAMESIZE 32
+#define FISRT_INST_ADDR 24
 
 #ifndef ASM
 //#include "lib.h"
@@ -22,15 +24,30 @@
 // extern void system_call_func();
 // extern int32_t halt_handler(uint8_t status);
 // extern int32_t execute_handler(const uint8_t* command);
+
+/*read system call's handler*/
 extern int32_t read_handler(int32_t fd, void* buf, int32_t nbytes);
+/*write system call's handler*/
 extern int32_t write_handler(int32_t fd, const void* buf, int32_t nbytes);
+/*open system call's handler*/
 extern int32_t open_handler(const uint8_t* filename);
+/*close system call's handler*/
 extern int32_t close_handler(int32_t fd);
+
+/*execute system call's handler's helper function*/
 extern int32_t execute_helper(const uint8_t* command);
+/*halt system call's handler's helper function*/
 extern int32_t halt_helper(uint8_t status);
 
-extern void system_calls_init();
+/* system call not used, implementing in next time */
+extern int32_t getargs_handler(uint8_t* buf, int32_t nbytes);
+extern int32_t vidmap_handler(uint8_t** screen_start);
+extern int32_t set_handler_handler(int32_t signum, void* handler_address);
+extern int32_t sigreturn_handler(void);
 
+/* initialize system calls*/
+extern void system_calls_init();
+/* get the pcb pointer*/
 extern uint32_t get_pcb_ptr();
 
 #endif

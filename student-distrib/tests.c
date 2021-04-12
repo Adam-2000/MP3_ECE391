@@ -51,28 +51,6 @@ int idt_test(){
 }
 
 // add more tests here
-/* KEY Test - Example
- * 
- * Asserts that first 10 IDT entries are not NULL
- * Inputs: None
- * Outputs: PASS/FAIL
- * Side Effects: None
- * Coverage: Load IDT, IDT definition
- * Files: x86_desc.h/S
- */
-int key_test(){
-	TEST_HEADER;
-	char buffer[128];
-	uint32_t ret;
-	while(1){
-		printf("\nstarting reading:\n");
-		ret = terminal_read(0, buffer, 128);
-		printf("# bytes:%u\n", ret);
-		printf("what have you typed:\n");
-		terminal_write(0, buffer, ret);
-	}
-	return PASS;
-}
 
 /* RTC Test - Example
  * 
@@ -187,6 +165,9 @@ int devide_zero(){
 	return FAIL;
 }
 
+// add more tests here
+/* Checkpoint 2 tests */
+
 /* file_test()
 * description: test the file system
 * Inputs: None
@@ -194,63 +175,50 @@ int devide_zero(){
 * Side Effects: none
 */
 int file_test(){
-    uint8_t fname1[NAME_LEN] = "hello";
-	uint8_t fname2[NAME_LEN+2] = "fish";
+    uint8_t fname1[NAME_LEN] = "frame0.txt";
+	uint8_t fname2[NAME_LEN+2] = "verylargetextwithverylongname.tx";
 	//uint8_t fname3[NAME_LEN] = "fish";
 	
-    int32_t bytes_to_read  = BLOCK_SIZE;
-    uint8_t block_buf[BLOCK_SIZE];
+    int32_t bytes_to_read  = BLOCK_SIZE * 10;
+    uint8_t block_buf[BLOCK_SIZE * 10];
     int32_t bytes_read;
-    int32_t total_read_time = 0;
-	int32_t total_read_bytes = 0;
-    int i, j;
+    int i;
     clear();		
 	set_cursor(0, 0);	
 	int32_t fd;
 	int32_t fd2;
-	fd = file_open(fname1);
+	fd = open(fname1);
 	//printf("%s's node index is %d\n",fname1,fd);
-	bytes_read = file_read(fd , block_buf, bytes_to_read);
+	bytes_read = read(fd , block_buf, bytes_to_read);
 	for(i =0; i <bytes_read ;i++){
-	    if(block_buf[i] != '\0'){
-	        putc(block_buf[i]);
-	    }
+	    putc(block_buf[i]);
 	}
 	printf("\n");
 	printf("read %s success, total read %d bytes\n",fname1,bytes_read);	       
-	file_close(fd);
+	close(fd);
 
 	char readbuf[10];
 	printf("input anything and enter to continue\n");
-	terminal_read(0, readbuf, 10);
+	read(0, readbuf, 10);
 
-	fd2 = file_open(fname2);
+	fd2 = open(fname2);
 	//printf("%s's node index is %d\n",fname2,fd2);
-	j = 0;
-    while(j < 2){
-        bytes_read = file_read(fd2, block_buf, bytes_to_read);
-        for(i =0; i <bytes_read ;i++){
-            if(block_buf[i] != NULL){
-                putc(block_buf[i]);
-            }
-        }
-        printf("\n");
-        printf("bytes_read: %d\n",bytes_read);
+	bytes_read = read(fd2, block_buf, bytes_to_read);
+	for(i =0; i <bytes_read ;i++){
+		putc(block_buf[i]);
+	}
+	printf("\n");
+	printf("bytes_read: %d\n",bytes_read);
 
-        total_read_time ++;
-		total_read_bytes += bytes_read;
 
-        if(bytes_read == 0){
-            printf("reached the end of the file\n");
-            break;
-		}
-		j++;
-    }	
+	if(bytes_read == 0){
+		printf("reached the end of the file\n");
+	}
 	printf("\n");
 	printf("contine read verylargetextwithverylongname.txt success\n");     
-	printf("total read times is %d\ntotal read bytes %d B\n",total_read_time,total_read_bytes);
+	printf("total read bytes %d B\n",bytes_read);
 
-
+	close(fd);
     return PASS;
 }
 
@@ -273,12 +241,12 @@ int directory_test(){
     clear();		
 	set_cursor(0, 0);	
 	int32_t fd;
-	fd = directory_open(fname1);
+	fd = open(fname1);
 	//printf("%s's node index is %d\n",fname1,fd);
 
 	printf("ls: ");
     while(1){
-        bytes_read = directory_read(fd , block_buf, bytes_to_read);
+        bytes_read = read(fd , block_buf, bytes_to_read);
         for(i =0; i <bytes_read ;i++){
             if(block_buf[i] != NULL){
                 putc(block_buf[i]);
@@ -294,13 +262,14 @@ int directory_test(){
             break;
 		}
     }	
+	close(fd);
 	printf("\n");
 	printf("read directory success\n");     
 	printf("total read times is %d\ntotal read bytes %d B\n",total_read_time,total_read_bytes);
 
 	char readbuf[10];
 	printf("input anything and enter to continue\n");
-	terminal_read(0, readbuf, 10);
+	read(0, readbuf, 10);
 
     return PASS;
 }
@@ -314,38 +283,65 @@ int directory_test(){
  */
 int rtc_test(){
 	TEST_HEADER;
-	rtc_open((uint8_t*)0);
+	int fd;
+	fd = open((uint8_t*)"rtc");
 	clear();
 	set_cursor(0, 0);
 	int i;
 	printf("feel the frequecy of 2HZ\n");
+	char buf[10];
 	for (i = 0; i < 10;){
 		set_cursor(0, 1);
 		printf("%u", rtc_counter);
-		rtc_read(0, NULL, 0);
+		read(fd, buf, 0);
 		i++;
 	}
 
 	clear();
 	set_cursor(0, 0);
 	uint32_t new_freq = 8;
-	rtc_write(0, &new_freq, 4);
+	write(fd, &new_freq, 4);
 	printf("feel the frequecy of 8HZ\n");
 	for (i = 0; i < 40;){
 		set_cursor(0, 1);
 		printf("%u", rtc_counter);
-		rtc_read(0, NULL, 0);
+		read(fd, buf, 0);
 		i++;
+	}
+	close(fd);
+	return PASS;
+}
+
+/* KEY Test - Example
+ * 
+ * Asserts that first 10 IDT entries are not NULL
+ * Inputs: None
+ * Outputs: PASS/FAIL
+ * Side Effects: None
+ * Coverage: Load IDT, IDT definition
+ * Files: x86_desc.h/S
+ */
+int key_test(){
+	TEST_HEADER;
+	char buffer[128];
+	uint32_t ret;
+	while(1){
+		printf("\nstarting reading:\n");
+		ret = read(0, buffer, 128);
+		printf("# bytes:%u\n", ret);
+		printf("what have you typed:\n");
+		write(1, buffer, ret);
 	}
 	return PASS;
 }
-// add more tests here
-/* Checkpoint 2 tests */
+
 /* Checkpoint 3 tests */
+/* execute Test: Execute a executable file
+ */
 int execute_test(){
 	TEST_HEADER;
 	int ret;
-	char cmd[33] = "fish";
+	char cmd[33] = "shell";
 	ret = execute((uint8_t*)cmd);
 	if (ret == -1){
 		return FAIL;
@@ -384,6 +380,10 @@ void launch_tests(){
 
 	// printf("*********************\n");
 	// TEST_OUTPUT("key_test", key_test());
+
+	printf("*********************\n");
 	TEST_OUTPUT("execute_test", execute_test());
+
+	
 
 }
