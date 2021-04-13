@@ -157,7 +157,7 @@ int32_t execute_helper(const uint8_t* command){
         new_pcb_ptr->fda[i].fop = NULL;
     }
     // load new arguments
-    strncpy(new_pcb_ptr->args, arg_buffer, ARG_BUF_SIZE);
+    strncpy((int8_t*)new_pcb_ptr->args, (int8_t*)arg_buffer, ARG_BUF_SIZE);
     pcb_ptr = new_pcb_ptr;
     cur_process_number = new_process_number;
     printf("IN FUNCTION: EXECUTE_HELPER:\nprocess_number = %d\npcb:%x, %x, %x, %d\n", cur_process_number, pcb_ptr->eip_val, pcb_ptr->esp_val, pcb_ptr->ebp_val, pcb_ptr->parent_process_number);
@@ -206,6 +206,7 @@ int32_t halt_helper(uint8_t status){
     if (ret == HALT_MAGIC_NUMBER){
         ret = 256;
     }
+    printf("HALT: Back to process_number = %d\n", cur_process_number);
     return ret;
 }
 
@@ -383,6 +384,12 @@ int32_t getargs_handler(uint8_t* buf, int32_t nbytes){
 }
 int32_t vidmap_handler(uint8_t** screen_start){
     printf("IN FUNCTION: vidmap_handler\n");
+    if (((int)screen_start) - PROGRAM_IMG_VIRT_ADDR < 0 || ((int)screen_start) - PROGRAM_IMG_VIRT_ADDR + 1 >= PAGE_SIZE_BIG){
+        printf("INVALID ARGUMENT screen start: %x\n", (uint32_t)screen_start);
+        return -1;
+    }
+    set_vedio_paging(VEDIO_PAGES_START);
+    *screen_start = (uint8_t*) VEDIO_PAGES_START;
     return 0;
 }
 int32_t set_handler_handler(int32_t signum, void* handler_address){

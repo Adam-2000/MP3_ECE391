@@ -83,14 +83,14 @@ int main ()
 
     while (0 != (cnt = ece391_read (fd, buf, SBUFSIZE-1))) {
         if (-1 == cnt) {
-	    ece391_fdputs (1, (uint8_t*)"directory entry read failed\n");
-	    return 3;
-	}
-	if ('.' == buf[0]) /* a directory... */
-	    continue;
-	buf[cnt] = '\0';
-	if (0 != do_one_file ((char*)search, (char*)buf))
-	    return 3;
+			ece391_fdputs (1, (uint8_t*)"directory entry read failed\n");
+			return 3;
+		}
+		if ('.' == buf[0]) /* a directory... */
+			continue;
+		buf[cnt] = '\0';
+		if (0 != do_one_file ((char*)search, (char*)buf))
+			return 3;
     }
 
     return 0;

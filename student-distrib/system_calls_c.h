@@ -17,6 +17,7 @@
 #define HALT_MAGIC_NUMBER 0x98
 #define FILENAMESIZE 32
 #define FISRT_INST_ADDR 24
+#define VEDIO_PAGES_START (IMG_BIG_START + PAGE_SIZE_BIG)
 
 #ifndef ASM
 //#include "lib.h"

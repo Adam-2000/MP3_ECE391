@@ -9,8 +9,7 @@ volatile uint32_t rtc_counter;
     Outputs: none 
     func: init the rtc 
 */
-int32_t rtc_open(const uint8_t* filename)
-{
+int32_t rtc_open(const uint8_t* filename){
     uint8_t prev;
     uint32_t init_lg_freq = INIT_FREQ;
     cli();
@@ -37,8 +36,7 @@ int32_t rtc_open(const uint8_t* filename)
     Outputs: none
     func: handle the interrputs after called
 */
-void RTC_handler(void)
-{
+void RTC_handler(void){
     //printf("int rtc handler: %d\n", rtc_counter);
     /* connect the port of RegC */
     outb(REGC_OFF,PORT_70);
@@ -58,8 +56,7 @@ void RTC_handler(void)
  * We need to write the frequency to the RTC, and return 0/-1 to see if okay
  * the frequency set
  */
-int32_t rtc_write(int32_t fd, const void* buf, int32_t nbytes)
-{
+int32_t rtc_write(int32_t fd, const void* buf, int32_t nbytes){
     uint32_t prev;
     uint32_t freq = *(uint32_t*)buf;
     uint8_t rate;
@@ -79,11 +76,13 @@ int32_t rtc_write(int32_t fd, const void* buf, int32_t nbytes)
     // change from lg(freq) to rate argument to rtc chip port
     rate = 16 - rate;
     /* read the current value in Reg_A */
+    cli();
     outb(REGA_OFF, PORT_70);
     prev = inb(PORT_CMOS);
     /* since inb would move RegD so agagin oub */
     outb(REGA_OFF, PORT_70);
     outb(((prev & 0xF0) | rate), PORT_CMOS);
+    sti();
     return 0;
 }
 

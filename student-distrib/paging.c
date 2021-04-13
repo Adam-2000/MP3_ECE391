@@ -8,6 +8,7 @@
 
 paging_dir_entry_t page_directory[NUM_ENTRY] __attribute__((aligned(ALINED_4K)));
 paging_table_entry_t page_table[NUM_ENTRY] __attribute__((aligned(ALINED_4K)));
+paging_table_entry_t page_table_video[NUM_ENTRY] __attribute__((aligned(ALINED_4K)));
 
 /*
  * paging_init
@@ -20,6 +21,7 @@ paging_table_entry_t page_table[NUM_ENTRY] __attribute__((aligned(ALINED_4K)));
 void paging_init(){
     int i;  //index
     //set the first 4MB as 4kB pages
+    cli();
     page_directory[0].present = 1;
     page_directory[0].r_w = 1;
     page_directory[0].u_s = 0; 
@@ -30,7 +32,7 @@ void paging_init(){
     page_directory[0].page_size = 0; // set size to 0 as 4KB pages
     // because when we use 20 bit table base address, we would add 12 zero at right
     // thus we need to shift to right 12 bit
-    page_directory[0].table_addr = (int)page_table>>PDE_RESERVE_FOR4KB; 
+    page_directory[0].table_addr = (uint32_t)page_table>>PDE_RESERVE_FOR4KB; 
 
     //set the 4MB-8MB as one 4MB page
     page_directory[1].present = 1;
@@ -46,7 +48,6 @@ void paging_init(){
     //thus bit 31-12 would be 0000 0000 0100 0000 0000
     page_directory[1].table_addr = (START_KERNAL_ADDR/ALINED_4K/NUM_ENTRY)<<10;
 
-    
     // set the following pde as not present 
     for (i=2;i<NUM_ENTRY;i++){
         page_directory[i].present = 0;
@@ -70,10 +71,25 @@ void paging_init(){
             // the page base address is the index (total 2^10)
             page_table[i].page_addr      = i; 
         }
-        
+    }
+    // set video page directory
+    i = VEDIO_PAGES_START/ALINED_4K/NUM_ENTRY;
+    page_directory[i].present = 1;
+    page_directory[i].r_w = 1;
+    page_directory[i].u_s = 1; 
+    page_directory[i].pwt = 0;
+    page_directory[i].pcd = 0; 
+    page_directory[i].access = 0;
+    page_directory[i].reserved = 0; 
+    page_directory[i].page_size = 0;
+    page_directory[i].table_addr = (uint32_t)page_table_video>>PDE_RESERVE_FOR4KB; 
+    // init the video page table for 128MB + (3 ~ 4) * 4MB 
+    for (i=0;i<NUM_ENTRY;i++){
+        page_table_video[i].present = 0;
     }
     //enable page directory by change control reg
     change_control_reg((int)page_directory);
+    sti();
 }                                                                                                  
 
 void set_paging_directory(uint32_t phy_addr){
@@ -81,6 +97,7 @@ void set_paging_directory(uint32_t phy_addr){
         return;
     }
     int i = USER_PAGE_ADDR/ALINED_4K/NUM_ENTRY;
+    cli();
     page_directory[i].present = 1;
     page_directory[i].r_w = 1;
     page_directory[i].u_s = 1; 
@@ -92,7 +109,32 @@ void set_paging_directory(uint32_t phy_addr){
     page_directory[i].table_addr = (phy_addr/ALINED_4K/NUM_ENTRY)<<10;
 
     reload_cr3((int)page_directory);
+    sti();
     printf("SET PAGING DIRECTORY: %x\n", phy_addr);
+}
+
+void set_vedio_paging(uint32_t virtual_addr){
+    int idx;
+    if (virtual_addr == NULL || (virtual_addr & DIRECTORY_MASK) != VEDIO_PAGES_START){
+        printf("wrong virtual address when set paging: %x\n", virtual_addr);
+        return;
+    }
+    cli();
+    idx = virtual_addr & TABLE_MASK >> PDE_RESERVE_FOR4KB;
+    // set the target vedio memory page as present 
+    page_table_video[idx].present        = 1;
+    page_table_video[idx].r_w            = 1;
+    page_table_video[idx].u_s            = 1;
+    page_table_video[idx].pwt            = 0;  
+    page_table_video[idx].pcd            = 1;  
+    page_table_video[idx].access         = 0;
+    page_table_video[idx].dirty          = 0;
+    page_table_video[idx].pat_alw_zero   = 0;
+    page_table_video[idx].global_bit     = 0; 
+    page_table_video[idx].page_addr      = VEDIO_MEM >> PDE_RESERVE_FOR4KB; 
+    reload_cr3((int)page_directory);
+    sti();
+    printf("SET VEDIO PAGE TABLE: %x\n", virtual_addr);
 }
 /*
     asm volatile("                                          \n\

@@ -6,6 +6,7 @@
 #include "types.h"
 #include "lib.h"
 #include "paging_enable.h"
+#include  "system_calls_c.h"
 
 #define NUM_ENTRY 1024 //(2^10)
 #define ALINED_4K 4096 //(2^12)
@@ -13,7 +14,8 @@
 #define VEDIO_MEM 0xB8000
 #define PDE_RESERVE_FOR4KB 12   //num of bits reserved
 #define USER_PAGE_ADDR 0X8000000 //128 MB the user stack address in virtual mem
-
+#define DIRECTORY_MASK 0xFFC00000
+#define TABLE_MASK 0x003FF000
 #ifndef ASM
 
 // struct for both two types of pde
@@ -53,5 +55,7 @@ extern paging_table_entry_t page_table[NUM_ENTRY] __attribute__((aligned(ALINED_
 extern void paging_init(void);
 
 extern void set_paging_directory(uint32_t phy_addr);
+
+void set_vedio_paging(uint32_t virtual_addr);
 #endif
 #endif

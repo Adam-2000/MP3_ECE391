@@ -332,6 +332,7 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
         printf("terminal_write: null buffer\n");
         return -1;
     }
+    cli();
     for (i = 0; i < nbytes; i++){
         if(buffer[i] == '\0'){
             //break;
@@ -339,6 +340,7 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
         putc(buffer[i]);
         nbytes_write++;
     }
+    sti();
     return nbytes_write;
 }
 
