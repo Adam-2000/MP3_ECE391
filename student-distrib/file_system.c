@@ -148,7 +148,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
  */
 int32_t file_read(int32_t fd, void* buf, int32_t nbytes){  
     int32_t byte_num;
-    pcb_t* pcb_ptr = get_pcb_ptr();
+    pcb_t* pcb_ptr = (pcb_t*) get_pcb_ptr();
     if (buf == NULL || nbytes < 0){
         printf("file_read: invalid args, %d, %d, %d\n", fd, buf, nbytes);
         return -1;
@@ -167,7 +167,6 @@ int32_t file_read(int32_t fd, void* buf, int32_t nbytes){
  */
 int32_t file_open(const uint8_t* filename){
     int ret;
-    int fd;
     dentry_t tem_dentry;
     ret = read_dentry_by_name (filename, &tem_dentry);
     if(ret != 0){
@@ -237,7 +236,7 @@ int32_t directory_close(int32_t fd) {
 int32_t directory_read(int32_t fd, void* buf, int32_t nbytes) {
     int i;
     uint8_t* buffer;
-    pcb_t* pcb_ptr = get_pcb_ptr();
+    pcb_t* pcb_ptr = (pcb_t*) get_pcb_ptr();
     if (buf == NULL){
         printf("directory_read: null buffer\n");
         return -1;

@@ -1,6 +1,7 @@
 
 #define ASM 1
 #define ESP_PCB_MASK 0xFFFFE000
+#define FIRST_PCB_PTR 0x7FE000
 #include "system_calls.h"
 .data
     EIP_VAL = 0
@@ -27,7 +28,7 @@ execute_handler:
     movl $ESP_PCB_MASK, %esi
     andl %esp, %esi
     // store reg value to old pcb
-    movl $end_execute_handler, EIP_VAL(%esi)
+    movl $check_bottom_shell, EIP_VAL(%esi)
     movl %esp, ESP_VAL(%esi)
     movl %ebp, EBP_VAL(%esi)
     // push iret context
@@ -37,6 +38,11 @@ execute_handler:
     pushl $USER_CS
     pushl EIP_VAL(%edi)
     IRET
+check_bottom_shell:
+    movl $ESP_PCB_MASK, %esi
+    andl %esp, %esi
+    cmpl $FIRST_PCB_PTR, %esi
+    je execute_shell
 end_execute_handler:
     leave
     ret

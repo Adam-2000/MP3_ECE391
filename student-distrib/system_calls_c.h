@@ -50,5 +50,7 @@ extern void system_calls_init();
 /* get the pcb pointer*/
 extern uint32_t get_pcb_ptr();
 
+extern int32_t execute_shell();
+
 #endif
 #endif

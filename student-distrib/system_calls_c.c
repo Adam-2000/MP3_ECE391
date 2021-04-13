@@ -149,6 +149,10 @@ int32_t execute_helper(const uint8_t* command){
     return (int32_t) pcb_ptr;
 }
 
+int32_t execute_shell(){
+    printf("OPEN A NEW SHELL.\n");
+    return execute((uint8_t*) "shell");
+}
 /*
  *	Function: halt_helper
  *	Description: helper function of halt system call
