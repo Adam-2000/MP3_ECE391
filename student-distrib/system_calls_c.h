@@ -7,7 +7,7 @@
 #include "keyboard.h"
 #include "paging.h"
 #include "x86_desc.h"
-#define MAX_PROCESS_NUMBER 8
+#define MAX_PROCESS_NUMBER 4
 #define KERNEL_END 0x800000     //8MB
 #define KERNEL_STACK_WIDTH 0x2000   //8KB
 #define SIZE_PROGRAM_IMG 0x400000 - 0x48000 //4MB - something

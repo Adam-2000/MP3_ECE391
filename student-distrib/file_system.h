@@ -10,6 +10,8 @@
 #define BLOCK_SIZE 4096
 #define BOOT_RESERVED_NUM 52
 #define DEN_RESERVED_NUM 24
+#define ARG_BUF_SIZE 1024
+
 #ifndef ASM
 
 /*dentry stucture*/
@@ -60,9 +62,8 @@ typedef struct pcb{
     uint32_t esp_val;
     uint32_t ebp_val;
     int parent_process_number;
-    //pcb_t* parent_pcb_ptr;
-    //uint32_t physical_addr; 
     file_descriptor_t fda[6];
+    char args[ARG_BUF_SIZE];
 }pcb_t;
 
 /*initialize file system*/

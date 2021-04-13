@@ -31,6 +31,7 @@ static int cur_process_number;
 // current pcb pointer
 static pcb_t* pcb_ptr;
 
+static uint8_t arg_buffer[ARG_BUF_SIZE];
 /*
  *	Function: get_pcb_ptr
  *	Description: get pcb pointer
@@ -80,16 +81,30 @@ int32_t execute_helper(const uint8_t* command){
     int32_t virtual_addr_1instr;
     int new_process_number;
     pcb_t* new_pcb_ptr;
+    // get rid of space before
+    while (*command == ' '){
+        command++;
+    }
     // get args for next time, first to read the filename
-    for (i = 0; i <= FILENAMESIZE; i++){
-        if (command[i] == ' ' || command[i] == '\0' || command[i] == '\n'){
+    for (i = 0; i <= FILENAMESIZE; i++, command++){
+        if (*command == ' ' || *command == '\0' || *command == '\n'){
             filename[i] = '\0';
             break;
         }
-        filename[i] = command[i];
+        filename[i] = *command;
     }
     if (i == FILENAMESIZE + 1){
         printf("command filename might be too long: %s\n", command);
+    }
+    //get rid of space in the middle
+    while (*command == ' '){
+        command++;
+    }
+    // get arguments
+    if (*command == '\0' || *command == '\n'){
+        *(arg_buffer) = '\0';
+    } else{
+        strncpy((int8_t*)arg_buffer, (int8_t*)command, ARG_BUF_SIZE);
     }
     ret = read_dentry_by_name (filename, &tem_dentry);
     if(ret != 0){
@@ -116,7 +131,7 @@ int32_t execute_helper(const uint8_t* command){
         printf("Error, virtual address NULL: %s\n");
         return -1;
     }
-    printf("IN FUNCTION: EXECUTE_HELPER: VIRTUAL ADDR GET!: %x\n", virtual_addr_1instr);
+    //printf("IN FUNCTION: EXECUTE_HELPER: VIRTUAL ADDR GET!: %x\n", virtual_addr_1instr);
     //find new process number
     for (i = 0; i < MAX_PROCESS_NUMBER; i++){
         if (process_number_array[i] == 0){
@@ -141,6 +156,8 @@ int32_t execute_helper(const uint8_t* command){
     for (i = 0; i < 6; i++){
         new_pcb_ptr->fda[i].fop = NULL;
     }
+    // load new arguments
+    strncpy(new_pcb_ptr->args, arg_buffer, ARG_BUF_SIZE);
     pcb_ptr = new_pcb_ptr;
     cur_process_number = new_process_number;
     printf("IN FUNCTION: EXECUTE_HELPER:\nprocess_number = %d\npcb:%x, %x, %x, %d\n", cur_process_number, pcb_ptr->eip_val, pcb_ptr->esp_val, pcb_ptr->ebp_val, pcb_ptr->parent_process_number);
@@ -201,7 +218,7 @@ int32_t halt_helper(uint8_t status){
  *  Side effects: open a file and create a file descripter
  */
 int32_t open_handler(const uint8_t* filename){
-    printf("IN FUNCTION: OPEN_HANDLER, open file: %s\n", filename);
+    printf("IN FUNCTION: OPEN_HANDLER, open file: %s, len: %d\n", filename, strlen((int8_t*)filename));
     int ret;
     int fd;
     dentry_t tem_dentry;
@@ -352,7 +369,16 @@ int32_t write_handler(int32_t fd, const void* buf, int32_t nbytes){
 
 /* system call not used, implementing in next time */
 int32_t getargs_handler(uint8_t* buf, int32_t nbytes){
-    printf("IN FUNCTION: getargs_handler\n");
+    printf("IN FUNCTION: getargs_handler: %s, len: %d\n", pcb_ptr->args, strlen((int8_t*)pcb_ptr->args));
+    if (buf == NULL){
+        printf("NULL BUFFER.\n");
+        return -1;
+    }
+    if (pcb_ptr->args == NULL){
+        printf("NULL ARGUMENTS IN PCB????????.\n");
+        return -1;
+    }
+    strncpy((int8_t*)buf, (int8_t*)pcb_ptr->args, nbytes);
     return 0;
 }
 int32_t vidmap_handler(uint8_t** screen_start){
