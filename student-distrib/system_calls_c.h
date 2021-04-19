@@ -40,9 +40,12 @@ extern int32_t execute_helper(const uint8_t* command);
 /*halt system call's handler's helper function*/
 extern int32_t halt_helper(uint8_t status);
 
-/* system call not used, implementing in next time */
+/* getargs syscall handler*/
 extern int32_t getargs_handler(uint8_t* buf, int32_t nbytes);
+/* vidmap syscall handler*/
 extern int32_t vidmap_handler(uint8_t** screen_start);
+
+/* system call not used, implementing in next time */
 extern int32_t set_handler_handler(int32_t signum, void* handler_address);
 extern int32_t sigreturn_handler(void);
 

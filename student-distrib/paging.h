@@ -52,10 +52,11 @@ extern paging_dir_entry_t page_directory[NUM_ENTRY] __attribute__((aligned(ALINE
 
 extern paging_table_entry_t page_table[NUM_ENTRY] __attribute__((aligned(ALINED_4K)));
 
+/*initialize paging settings*/
 extern void paging_init(void);
-
+/*set a page directory for new physical address*/
 extern void set_paging_directory(uint32_t phy_addr);
-
+/*set a virtual address to the video page*/
 void set_vedio_paging(uint32_t virtual_addr);
 #endif
 #endif

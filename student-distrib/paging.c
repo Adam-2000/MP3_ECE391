@@ -92,6 +92,13 @@ void paging_init(){
     sti();
 }                                                                                                  
 
+/*
+ * set_paging_directory
+ *   DESCRIPTION: set a page directory for new physical address
+ *   INPUTS: phy_addr -- the physical address of the new page for program img
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ */
 void set_paging_directory(uint32_t phy_addr){
     if (phy_addr == NULL){
         return;
@@ -110,9 +117,16 @@ void set_paging_directory(uint32_t phy_addr){
 
     reload_cr3((int)page_directory);
     sti();
-    printf("SET PAGING DIRECTORY: %x\n", phy_addr);
+    //printf("SET PAGING DIRECTORY: %x\n", phy_addr);
 }
 
+/*
+ * set_vedio_paging
+ *   DESCRIPTION: set a virtual address to the video page
+ *   INPUTS: virtual_addr -- the virtual address of the new page for video 
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ */
 void set_vedio_paging(uint32_t virtual_addr){
     int idx;
     if (virtual_addr == NULL || (virtual_addr & DIRECTORY_MASK) != VEDIO_PAGES_START){
@@ -134,7 +148,7 @@ void set_vedio_paging(uint32_t virtual_addr){
     page_table_video[idx].page_addr      = VEDIO_MEM >> PDE_RESERVE_FOR4KB; 
     reload_cr3((int)page_directory);
     sti();
-    printf("SET VEDIO PAGE TABLE: %x\n", virtual_addr);
+    //printf("SET VEDIO PAGE TABLE: %x\n", virtual_addr);
 }
 /*
     asm volatile("                                          \n\

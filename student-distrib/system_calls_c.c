@@ -72,7 +72,7 @@ void system_calls_init(){
  *  Side effects: create a pcb and prepare for context switch
  */
 int32_t execute_helper(const uint8_t* command){
-    printf("IN FUNCTION: EXECUTE_HELPER, %s\n", command);
+    //printf("IN FUNCTION: EXECUTE_HELPER, %s\n", command);
     int ret;
     int i;
     dentry_t tem_dentry;
@@ -148,7 +148,7 @@ int32_t execute_helper(const uint8_t* command){
     set_paging_directory(KERNEL_END + (new_process_number - 1) * PAGE_SIZE_BIG);
     // load file into memory
     ret = read_data(tem_dentry.inode_index, 0, (uint8_t*)PROGRAM_IMG_VIRT_ADDR, SIZE_PROGRAM_IMG);
-    printf("bytes of file: %d\n", ret);
+    //printf("bytes of file: %d\n", ret);
     new_pcb_ptr = (pcb_t*) (KERNEL_END - KERNEL_STACK_WIDTH * (new_process_number + 1));
     new_pcb_ptr->parent_process_number = cur_process_number;
     new_pcb_ptr->eip_val = virtual_addr_1instr;
@@ -160,14 +160,14 @@ int32_t execute_helper(const uint8_t* command){
     strncpy((int8_t*)new_pcb_ptr->args, (int8_t*)arg_buffer, ARG_BUF_SIZE);
     pcb_ptr = new_pcb_ptr;
     cur_process_number = new_process_number;
-    printf("IN FUNCTION: EXECUTE_HELPER:\nprocess_number = %d\npcb:%x, %x, %x, %d\n", cur_process_number, pcb_ptr->eip_val, pcb_ptr->esp_val, pcb_ptr->ebp_val, pcb_ptr->parent_process_number);
+    //printf("IN FUNCTION: EXECUTE_HELPER:\nprocess_number = %d\npcb:%x, %x, %x, %d\n", cur_process_number, pcb_ptr->eip_val, pcb_ptr->esp_val, pcb_ptr->ebp_val, pcb_ptr->parent_process_number);
     tss.esp0 = KERNEL_END - KERNEL_STACK_WIDTH * new_process_number - 4;
     //printf("IN FUNCTION: EXECUTE_HELPER: ANYWAY AT END:\n");
     return (int32_t) pcb_ptr;
 }
 
 int32_t execute_shell(){
-    printf("OPEN A NEW SHELL.\n");
+    //printf("OPEN A NEW SHELL.\n");
     return execute((uint8_t*) "shell");
 }
 /*
@@ -206,7 +206,7 @@ int32_t halt_helper(uint8_t status){
     if (ret == HALT_MAGIC_NUMBER){
         ret = 256;
     }
-    printf("HALT: Back to process_number = %d\n", cur_process_number);
+    //printf("HALT: Back to process_number = %d\n", cur_process_number);
     return ret;
 }
 
@@ -219,7 +219,7 @@ int32_t halt_helper(uint8_t status){
  *  Side effects: open a file and create a file descripter
  */
 int32_t open_handler(const uint8_t* filename){
-    printf("IN FUNCTION: OPEN_HANDLER, open file: %s, len: %d\n", filename, strlen((int8_t*)filename));
+    //printf("IN FUNCTION: OPEN_HANDLER, open file: %s, len: %d\n", filename, strlen((int8_t*)filename));
     int ret;
     int fd;
     dentry_t tem_dentry;
@@ -277,7 +277,7 @@ int32_t open_handler(const uint8_t* filename){
  *  Side effects: close the file descripter
  */
 int32_t close_handler(int32_t fd){
-    printf("IN FUNCTION: CLOSE_HELPER: fd = %d\n", fd);
+    //printf("IN FUNCTION: CLOSE_HELPER: fd = %d\n", fd);
     int ret;
     if (fd < 2 || fd >= 8){
         printf("close_handler: invalid fd: %d\n", fd);
@@ -368,9 +368,17 @@ int32_t write_handler(int32_t fd, const void* buf, int32_t nbytes){
     return 0;
 }
 
-/* system call not used, implementing in next time */
+/*
+ *	Function: getargs_handler
+ *	Description: get arguments for a program
+ *	inputs:		buf -- input buffer
+ *              nbytes -- number of bytes to get
+ *	outputs:	-1 if fail
+ *              0 if success
+ *  Side effects: write the buf value to file
+ */
 int32_t getargs_handler(uint8_t* buf, int32_t nbytes){
-    printf("IN FUNCTION: getargs_handler: %s, len: %d\n", pcb_ptr->args, strlen((int8_t*)pcb_ptr->args));
+    //printf("IN FUNCTION: getargs_handler: %s, len: %d\n", pcb_ptr->args, strlen((int8_t*)pcb_ptr->args));
     if (buf == NULL){
         printf("NULL BUFFER.\n");
         return -1;
@@ -382,8 +390,16 @@ int32_t getargs_handler(uint8_t* buf, int32_t nbytes){
     strncpy((int8_t*)buf, (int8_t*)pcb_ptr->args, nbytes);
     return 0;
 }
+/*
+ *	Function: vidmap_handler
+ *	Description: set and get the video page
+ *	inputs:		screen_start -- pointer to the output screen start address
+ *	outputs:	-1 if fail
+ *              0 if success
+ *  Side effects: write the *screen_start
+ */
 int32_t vidmap_handler(uint8_t** screen_start){
-    printf("IN FUNCTION: vidmap_handler\n");
+    //printf("IN FUNCTION: vidmap_handler\n");
     if (((int)screen_start) - PROGRAM_IMG_VIRT_ADDR < 0 || ((int)screen_start) - PROGRAM_IMG_VIRT_ADDR + 1 >= PAGE_SIZE_BIG){
         printf("INVALID ARGUMENT screen start: %x\n", (uint32_t)screen_start);
         return -1;
@@ -392,6 +408,8 @@ int32_t vidmap_handler(uint8_t** screen_start){
     *screen_start = (uint8_t*) VEDIO_PAGES_START;
     return 0;
 }
+
+/* system calls not used, implementing in next time */
 int32_t set_handler_handler(int32_t signum, void* handler_address){
     printf("IN FUNCTION: set_handler_handler\n");
     return 0;

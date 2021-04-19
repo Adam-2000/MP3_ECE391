@@ -86,3 +86,17 @@ Mistake: forget to close file after open it
 Solution: always close a file when not using it.
 
 
+Date: 2021.04.13
+Handler: Chen Yize
+Problem: can't get correct result when input cmd with arguments
+Mistake: The address of pcb is not available after a new page mapping
+Solution: should create a pcb after the new page is mapped, so store the arguments somewhere before the new page mapping, then load it into pcb afterwards.
+
+
+Date: 2021.04.13
+Handler: Chen Yize
+Problem: Cannot correctly assign a new image page (page fault exception when execute fish)
+Mistake: modified the old page table for 0-4MB
+Solution: use a new page table for vedio mapping.
+
+
