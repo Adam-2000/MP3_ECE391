@@ -48,7 +48,8 @@ int32_t read_dentry_by_name (const uint8_t* fname, dentry_t* dentry){
     uint32_t fname_len = strlen((int8_t*)fname);
     if (fname_len > NAME_LEN){
         printf("filename too long!\n");
-        fname_len = NAME_LEN;
+        //fname_len = NAME_LEN;
+        return -1;
     }
 
     // search along the dentry in boot_block
@@ -242,8 +243,11 @@ int32_t directory_read(int32_t fd, void* buf, int32_t nbytes) {
         return -1;
     }
     // only read one file name at a time
-    if (pcb_ptr->fda[fd-2].inode_idx != 0 || nbytes != NAME_LEN){
+    if (pcb_ptr->fda[fd-2].inode_idx != 0 || nbytes < NAME_LEN){
         return -1;
+    }
+    if(nbytes > NAME_LEN){
+        //printf("Should read one name at a time.\n");
     }
     if (pcb_ptr->fda[fd-2].file_position >= boot_block->dentry_num){
         return 0;

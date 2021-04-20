@@ -387,6 +387,10 @@ int32_t getargs_handler(uint8_t* buf, int32_t nbytes){
         printf("NULL ARGUMENTS IN PCB????????.\n");
         return -1;
     }
+    if (strlen(pcb_ptr->args) == 0){
+        printf("No available arguments\n");
+        return -1;
+    }
     strncpy((int8_t*)buf, (int8_t*)pcb_ptr->args, nbytes);
     return 0;
 }
