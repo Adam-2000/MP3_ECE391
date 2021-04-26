@@ -3,14 +3,14 @@
 
 #include "lib.h"
 
-#define VIDEO       0xB8000
+//#define VIDEO       0xB8000
 #define NUM_COLS    80
 #define NUM_ROWS    25
 #define ATTRIB      0x7
 
 static int screen_x;
 static int screen_y;
-static char* video_mem = (char *)VIDEO;
+static char* video_mem = (char *)0xB8000;
 
 static void upscroll();
 
@@ -219,13 +219,14 @@ int32_t removec(){
         screen_y--;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+        update_cursor();
         return 0;
     }
     screen_x--;
     *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
     *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
-    return 0;
     update_cursor();
+    return 0;
 }
 
 /* int32_t set_cursor(uint32_t x, uint32_t y);
@@ -241,6 +242,24 @@ int32_t set_cursor(uint32_t x, uint32_t y){
     update_cursor();
     return 0;
 }
+
+int32_t set_video_mem(uint32_t new_video_mem){
+    if (new_video_mem == NULL || (new_video_mem & 0xFFF) != 0){
+        return -1;
+    }
+    video_mem = (char*)new_video_mem;
+    return 0;
+}
+
+
+uint32_t get_cursor_x(){
+    return screen_x;
+}
+
+uint32_t get_cursor_y(){
+    return screen_y;
+}
+
 
 void enable_cursor(uint8_t cursor_start, uint8_t cursor_end)
 {

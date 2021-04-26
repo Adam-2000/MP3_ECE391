@@ -56,7 +56,7 @@ void paging_init(){
     // init the page table for 0-4MB address
     for (i=0;i<NUM_ENTRY;i++){
         page_table[i].present = 0;
-        if (i == VEDIO_MEM/ALINED_4K){
+        if (i >= VEDIO_MEM/ALINED_4K || i < VEDIO_MEM/ALINED_4K + 3){
             // set the target vedio memory page as present 
             page_table[i].present        = 1;
             page_table[i].r_w            = 1;

@@ -7,11 +7,12 @@
 #include "keyboard.h"
 #include "paging.h"
 #include "x86_desc.h"
-#define MAX_PROCESS_NUMBER 4
+#define MAX_PROCESS_NUMBER 7
 #define KERNEL_END 0x800000     //8MB
 #define KERNEL_STACK_WIDTH 0x2000   //8KB
 #define SIZE_PROGRAM_IMG 0x400000 - 0x48000 //4MB - something
 #define PAGE_SIZE_BIG 0x400000 //4MB
+#define PAGE_SIZE_SMALL 0x1000 //4kB
 #define IMG_BIG_START 0x8000000 //128MB
 #define PROGRAM_IMG_VIRT_ADDR 0x08048000
 #define HALT_MAGIC_NUMBER 0x98

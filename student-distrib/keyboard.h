@@ -7,23 +7,23 @@
 #include "types.h"
 #include "i8259.h"
 #include "x86_desc.h"
+#include "system_calls_c.h"
+#include "file_system.h"
+#include "paging.h"
 /* Define necessary parameter*/
 #define KEY_NUM         59          // Array of possible character pressed has size 60
 #define IRQ_KEYBOARD	1           // Keyboard connected to the IRQ1 of PIC
 #define KEY_DATAPORT    0x60        // Keyboard passes in data through this port
 #define NULL_KEY	    '\0'        // Some keys are defined to be NULL with value '\0'
-#include "types.h"
-#include "i8259.h"
-#include "x86_desc.h"
 
-#define SIZE_KEYBOARD_BUFFER 128
 #define SCREEN_WIDTH    80
 
 #ifndef ASM
 #include "lib.h"
+
+extern terminals_info_t terminals;
 /* init the keyboard */
 extern void init_keyboard();
-#include "lib.h"
 
 /* Keyboard handlers */
 extern void keyboard_handler();

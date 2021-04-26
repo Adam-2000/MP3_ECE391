@@ -41,13 +41,7 @@ static char shifted_keymap[KEY_NUM] = {
 	'B', 'N', 'M','<', '>', '?', '\0', '\0', '\0', ' ', '\0'
 };
 
-/*Basic keyboard buffer structure*/
-static struct keyboard_buffer_struct_t{
-    char buffer[SIZE_KEYBOARD_BUFFER];
-    uint32_t cnt;       //counter
-    uint32_t enable;
-    //uint32_t cursor; // this saves for cursor operation // don't delete
-} key_buffer;
+terminals_info_t terminals;
 
 /*Basic keyboard status structure*/
 struct key_status_struct{
@@ -76,11 +70,18 @@ static union key_status_t {
  *	effects:	Motivate IRQ 1 on the master PIC
  */ 
 void init_keyboard() {
+    int i;
+    for(i = 0; i < 3; i++){
+        terminals.terminal[i].key_buffer.cnt = 0;
+        terminals.terminal[i].key_buffer.enable = 0;
+        terminals.terminal[i].screen_x = get_cursor_x();
+        terminals.terminal[i].screen_y = get_cursor_y();
+        memcpy((void*)(VEDIO_MEM + (i + 1) * PAGE_SIZE_SMALL), (void*)VEDIO_MEM, PAGE_SIZE_SMALL);
+    }
+    terminals.idx_on_screen = 0;
+    terminals.idx_active = 0;
     key_state.val = 0;
-    key_buffer.cnt = 0;
-    key_buffer.enable = 0;
     enable_cursor(14, 15);
-    //key_buffer.cursor = 0;
 	enable_irq(IRQ_KEYBOARD);
 }
 
@@ -96,6 +97,7 @@ void keyboard_handler(){
     uint32_t char_index;    // receive the scan code
     char key_char;          // corresponding key value
     int i;
+    keyboard_buffer_struct_t* key_buffer_ptr;
     cli();
 
     // receive the scancode through keyboard's dataport
@@ -161,6 +163,7 @@ void keyboard_handler(){
         goto END;
     }
     // check whether in range
+    key_buffer_ptr = &terminals.terminal[terminals.idx_on_screen].key_buffer;
     if(char_index < KEY_NUM){
         key_char = keymap[char_index];
         // check for NULL value
@@ -182,9 +185,9 @@ void keyboard_handler(){
                 key_char = shifted_keymap[char_index];
             }
             // if the buffer has only 1 space left, then don't put the new character. 
-            if(key_buffer.cnt < SIZE_KEYBOARD_BUFFER - 1){
-                if (key_buffer.enable){
-                    key_buffer.buffer[key_buffer.cnt++] = key_char;
+            if(key_buffer_ptr->cnt < SIZE_KEYBOARD_BUFFER - 1){
+                if (key_buffer_ptr->enable){
+                    key_buffer_ptr->buffer[key_buffer_ptr->cnt++] = key_char;
                 }
                 putc(key_char);
             }
@@ -194,20 +197,20 @@ void keyboard_handler(){
         // cases for special keys
         switch (char_index){
             case ENTER:
-                if(key_buffer.cnt < SIZE_KEYBOARD_BUFFER){
-                    if (key_buffer.enable){
-                        key_buffer.buffer[key_buffer.cnt++] = '\n';
+                if(key_buffer_ptr->cnt < SIZE_KEYBOARD_BUFFER){
+                    if (key_buffer_ptr->enable){
+                        key_buffer_ptr->buffer[key_buffer_ptr->cnt++] = '\n';
                     }
                     putc('\n');
                 }
                 break;
             case TAB:               // put 4 space 
                 for(i = 0; i < 4; i++){
-                    if(key_buffer.cnt >= SIZE_KEYBOARD_BUFFER - 1){
+                    if(key_buffer_ptr->cnt >= SIZE_KEYBOARD_BUFFER - 1){
                         break;
                     }
-                    if (key_buffer.enable){
-                        key_buffer.buffer[key_buffer.cnt++] = ' ';
+                    if (key_buffer_ptr->enable){
+                        key_buffer_ptr->buffer[key_buffer_ptr->cnt++] = ' ';
                     }
                     putc(' ');
                 }
@@ -228,9 +231,9 @@ void keyboard_handler(){
                 key_status.capital_status ^= 1;
                 break;
             case BACKSPACE:
-                if (key_buffer.enable){
-                    if (key_buffer.cnt > 0){
-                        key_buffer.cnt--;
+                if (key_buffer_ptr->enable){
+                    if (key_buffer_ptr->cnt > 0){
+                        key_buffer_ptr->cnt--;
                         removec();
                     }
                 }
@@ -273,8 +276,8 @@ int32_t keyboard_open(){
  *	effects:	None
  */
 int32_t terminal_open(const uint8_t* filename){
-    key_buffer.cnt = 0;
-    key_buffer.enable = 0;
+    //key_buffer.cnt = 0;
+    //key_buffer.enable = 0;
     return 0;
 }
 
@@ -290,16 +293,17 @@ int32_t terminal_open(const uint8_t* filename){
  */
 int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
     int32_t nbytes_read;
-    key_buffer.cnt = 0;
-    key_buffer.enable = 1;
+    keyboard_buffer_struct_t* key_buffer_ptr = &terminals.terminal[terminals.idx_active].key_buffer;
+    key_buffer_ptr->cnt = 0;
+    key_buffer_ptr->enable = 1;
     char* buffer = (char*) buf;
     if (buffer == NULL){
         printf("terminal_read: null buffer\n");
         return -1;
     }
     while(1){
-        if(key_buffer.cnt > 0){
-            if(key_buffer.buffer[key_buffer.cnt - 1] == '\n'){
+        if(key_buffer_ptr->cnt > 0){
+            if(key_buffer_ptr->buffer[key_buffer_ptr->cnt - 1] == '\n'){
                 break;
             }
         }
@@ -307,10 +311,10 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
     // if (nbytes > 128){
     //     printf("Can only read 128 bytes.\n");
     // }
-    nbytes_read = (key_buffer.cnt > nbytes) ? nbytes : key_buffer.cnt;
-    memcpy(buffer, key_buffer.buffer, nbytes_read);
-    key_buffer.cnt = 0;
-    key_buffer.enable = 0;
+    nbytes_read = (key_buffer_ptr->cnt > nbytes) ? nbytes : key_buffer_ptr->cnt;
+    memcpy(buffer, key_buffer_ptr->buffer, nbytes_read);
+    key_buffer_ptr->cnt = 0;
+    key_buffer_ptr->enable = 0;
     return nbytes_read;
 }
 
@@ -352,7 +356,7 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
  *	effects:	None
  */
 int32_t terminal_close(int32_t fd){
-    key_buffer.cnt = 0;
-    key_buffer.enable = 0;
+    //key_buffer.cnt = 0;
+    //key_buffer.enable = 0;
     return -1;
 }

@@ -10,7 +10,6 @@
 #define BLOCK_SIZE 4096
 #define BOOT_RESERVED_NUM 52
 #define DEN_RESERVED_NUM 24
-#define ARG_BUF_SIZE 1024
 
 #ifndef ASM
 
@@ -41,30 +40,6 @@ typedef struct inode {
 typedef struct data_block{
     uint8_t data_block_content[BLOCK_SIZE];
 }data_block_t;
-
-typedef struct fop_table{
-    int32_t (*read) (int32_t fd, void* buf, int32_t nbytes);
-    int32_t (*write)(int32_t fd, const void* buf, int32_t nbytes);
-    int32_t (*open)(const uint8_t* filename);
-    int32_t (*close) (int32_t fd);
-}fop_table_t;
-
-/*fd stucture*/
-typedef struct file_descriptor{
-    fop_table_t* fop;
-    uint32_t inode_idx;
-    uint32_t file_position;
-    uint32_t flags;
-}file_descriptor_t;
-
-typedef struct pcb{
-    uint32_t eip_val;
-    uint32_t esp_val;
-    uint32_t ebp_val;
-    int parent_process_number;
-    file_descriptor_t fda[6];
-    char args[ARG_BUF_SIZE];
-}pcb_t;
 
 /*initialize file system*/
 void file_system_init(uint32_t module_start);
