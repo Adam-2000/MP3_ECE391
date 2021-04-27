@@ -82,7 +82,7 @@ void init_keyboard() {
         memcpy((void*)(VEDIO_MEM + (i + 1) * PAGE_SIZE_SMALL), (void*)VEDIO_MEM, PAGE_SIZE_SMALL);
     }
     terminals.idx_on_screen = 0;
-    terminals.idx_active = 0;
+    terminals.idx_active = 5;
     key_state.val = 0;
     enable_cursor(14, 15);
 	enable_irq(IRQ_KEYBOARD);
@@ -320,6 +320,7 @@ int32_t terminal_open(const uint8_t* filename){
  *	effects:	Include buffer contents copy
  */
 int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
+    printf("reading: %d", terminals.idx_active);
     int32_t nbytes_read;
     keyboard_buffer_struct_t* key_buffer_ptr = &terminals.terminal[terminals.idx_active].key_buffer;
     key_buffer_ptr->cnt = 0;

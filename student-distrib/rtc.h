@@ -18,7 +18,6 @@
 #define RTC_NMI     0x80
 #define RTC_PIE     0x40
 #define CNT_MAX     0x80000000
-#define IRQ_RTC_NUM 8
 
 //#define FREQ2RATE(freq) 16 - freq
 

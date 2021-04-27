@@ -58,9 +58,10 @@ typedef struct keyboard_buffer_struct{
 
 typedef struct terminal_info{
     keyboard_buffer_struct_t key_buffer;
-    int screen_x;
-    int screen_y;
+    uint32_t screen_x;
+    uint32_t screen_y;
     pcb_t* pcb_ptr;
+    int pid;
 } terminal_info_t;
 
 

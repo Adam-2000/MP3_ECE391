@@ -10,7 +10,7 @@
     PARENT_PCB_PTR = 12
     FDA = 16
 
-.global execute_handler, halt_handler
+.global execute_handler, halt_handler, set3shells, PIT_handler
 
 execute_handler:
     pushl %ebp
@@ -31,6 +31,7 @@ execute_handler:
     movl $check_bottom_shell, EIP_VAL(%esi)
     movl %esp, ESP_VAL(%esi)
     movl %ebp, EBP_VAL(%esi)
+fake_iret:
     // push iret context
     pushl $USER_DS
     pushl ESP_VAL(%edi)
@@ -46,6 +47,60 @@ check_bottom_shell:
 end_execute_handler:
     leave
     ret
+
+
+set3shells:
+    pushl %ebp
+    movl  %esp, %ebp
+    call set3shells_helper
+    //get old pcb
+    movl $ESP_PCB_MASK, %esi
+    andl %esp, %esi
+    // store reg value to old pcb
+    movl $check_bottom_shell, EIP_VAL(%esi)
+    movl %esp, ESP_VAL(%esi)
+    movl %ebp, EBP_VAL(%esi)
+    movl $0, start_flag
+    leave
+    ret
+
+start_flag:
+    .long 0
+
+PIT_handler:
+    pushl %ebp
+    movl  %esp, %ebp
+
+    call PIT_handler_helper
+    //get new pcb
+    cmpl $0, %eax
+    je end_PIT_handler
+    movl %eax, %edi
+
+    cmpl $0, start_flag
+    jne PIT_save
+    movl $1, start_flag
+    jmp fake_iret
+PIT_save:
+    //get old pcb
+    movl $ESP_PCB_MASK, %esi
+    andl %esp, %esi
+    // store reg value to old pcb
+    movl $end_PIT_handler, EIP_VAL(%esi)
+    movl %esp, ESP_VAL(%esi)
+    movl %ebp, EBP_VAL(%esi)
+PIT_restore:
+    // push iret context
+    movl ESP_VAL(%edi), %esp
+    jmp *EIP_VAL(%edi)
+
+end_PIT_handler:
+    leave
+    ret
+
+
+
+
 
 halt_handler:
     pushl %ebp

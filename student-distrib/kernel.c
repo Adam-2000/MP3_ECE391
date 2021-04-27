@@ -13,7 +13,8 @@
 #include "paging.h"
 #include "file_system.h"
 #include "system_calls_c.h"
-
+#include "system_calls.h"
+#include "pit.h"
 #define RUN_TESTS
 
 /* Macros. */
@@ -149,6 +150,8 @@ void entry(unsigned long magic, unsigned long addr) {
     init_keyboard(); 
     paging_init();
     system_calls_init();
+    set3shells();
+    pit_init();
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
 

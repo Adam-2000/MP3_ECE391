@@ -27,7 +27,7 @@ static fop_table_t fop_table_rtc = {
 // pcb busy(1)/free(0) array
 static int process_number_array[MAX_PROCESS_NUMBER];
 // current process number
-static int cur_process_number;
+int cur_process_number;
 // current pcb pointer
 static pcb_t* pcb_ptr;
 
@@ -40,6 +40,9 @@ static uint8_t arg_buffer[ARG_BUF_SIZE];
  */
 uint32_t get_pcb_ptr(){
     return (uint32_t)pcb_ptr;
+}
+void set_pcb_ptr(pcb_t* new_pcb_ptr){
+    pcb_ptr = new_pcb_ptr;
 }
 
 /*
@@ -164,6 +167,71 @@ int32_t execute_helper(const uint8_t* command){
     tss.esp0 = KERNEL_END - KERNEL_STACK_WIDTH * new_process_number - 4;
     //printf("IN FUNCTION: EXECUTE_HELPER: ANYWAY AT END:\n");
     return (int32_t) pcb_ptr;
+}
+
+void set3shells_helper(){
+    //printf("IN FUNCTION: EXECUTE_HELPER, %s\n", command);
+    int ret;
+    int i;
+    dentry_t tem_dentry;
+    uint8_t filename[FILENAMESIZE + 1] = "shell";
+    uint32_t magic = 0;
+    int32_t virtual_addr_1instr;
+    int new_process_number;
+    pcb_t* new_pcb_ptr;
+    ret = read_dentry_by_name (filename, &tem_dentry);
+    if(ret != 0){
+        printf("Error: set3shells_helper, read dentry by name error\n");
+        return;
+    }
+    //check file validity
+    ret = read_data(tem_dentry.inode_index, 0, (uint8_t*)&magic, 4);
+    if(ret == -1){
+        printf("Error: set3shells_helper: magic number: %u\n", magic);
+        return;
+    }
+    if (magic != MAGIC_EXECUTABLE){
+        printf("Error, not executable filename in set3shells.\n");
+        return;
+    }
+    //printf("IN FUNCTION: EXECUTE_HELPER: MAGIC NUMBER GET!, %u\n", magic);
+    ret = read_data(tem_dentry.inode_index, FISRT_INST_ADDR, (uint8_t*)&virtual_addr_1instr, 4);
+    if(ret == -1){
+        printf("Error: read_data error: first instructino\n");
+        return;
+    }
+    if (virtual_addr_1instr == NULL){
+        printf("Error, virtual address NULL: %s\n");
+        return;
+    }
+    //printf("IN FUNCTION: EXECUTE_HELPER: VIRTUAL ADDR GET!: %x\n", virtual_addr_1instr);
+    //find new process number
+    for (i = 3; i >= 1; i--){
+        if (process_number_array[i] == 1){
+            printf("Error: set3shells_helper: why pid assigned?\n");
+        }
+        new_process_number = i;
+        process_number_array[i] = 1;
+        // set up paging
+        set_paging_directory(KERNEL_END + (new_process_number - 1) * PAGE_SIZE_BIG);
+        // load file into memory
+        ret = read_data(tem_dentry.inode_index, 0, (uint8_t*)PROGRAM_IMG_VIRT_ADDR, SIZE_PROGRAM_IMG);
+        //printf("bytes of file: %d\n", ret);
+        new_pcb_ptr = (pcb_t*) (KERNEL_END - KERNEL_STACK_WIDTH * (new_process_number + 1));
+        new_pcb_ptr->parent_process_number = 0;
+        new_pcb_ptr->eip_val = virtual_addr_1instr;
+        new_pcb_ptr->ebp_val = new_pcb_ptr->esp_val = IMG_BIG_START + PAGE_SIZE_BIG - 4;
+        for (i = 0; i < 6; i++){
+            new_pcb_ptr->fda[i].fop = NULL;
+        }
+        // load new arguments
+        strncpy((int8_t*)new_pcb_ptr->args, (int8_t*)"", ARG_BUF_SIZE);
+        terminals.terminal[i - 1].pcb_ptr = new_pcb_ptr;
+        terminals.terminal[i - 1].pid = new_process_number;
+        //printf("IN FUNCTION: EXECUTE_HELPER:\nprocess_number = %d\npcb:%x, %x, %x, %d\n", cur_process_number, pcb_ptr->eip_val, pcb_ptr->esp_val, pcb_ptr->ebp_val, pcb_ptr->parent_process_number);
+        //tss.esp0 = KERNEL_END - KERNEL_STACK_WIDTH * new_process_number - 4;
+        //printf("IN FUNCTION: EXECUTE_HELPER: ANYWAY AT END:\n");
+    }
 }
 
 int32_t execute_shell(){

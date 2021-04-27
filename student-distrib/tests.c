@@ -340,17 +340,18 @@ int key_test(){
  */
 int execute_test(){
 	TEST_HEADER;
-	int ret;
+	//int ret;
 	// char cmd[33] = "hello";
 	// ret = execute((uint8_t*)cmd);
 	// if (ret == -1){
 	// 	return FAIL;
 	// }
-	char cmd1[33] = "shell";
-	ret = execute((uint8_t*)cmd1);
-	if (ret == -1){
-		return FAIL;
-	}
+	// char cmd1[33] = "shell";
+	// ret = execute((uint8_t*)cmd1);
+	// if (ret == -1){
+	// 	return FAIL;
+	// }
+	while (1);
 	return PASS;
 }
 /* Checkpoint 4 tests */

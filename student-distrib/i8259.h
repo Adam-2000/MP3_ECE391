@@ -29,8 +29,9 @@
  * to declare the interrupt finished */
 #define EOI                 0x60
 
-
-
+#define IRQ_RTC_NUM         8
+#define IRQ_KEYBOARD	    1 
+#define IRQ_TIMER_CHIP      0
 
 /* CSJ's add */
 #define IRQ_MAX             15

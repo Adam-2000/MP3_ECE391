@@ -24,6 +24,7 @@ void machine_check();
 void simd_floating_point(); 
 
 /*interrupts*/
+void timer_chip();
 void keyboard();
 void real_time_clock();
 

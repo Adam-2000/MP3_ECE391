@@ -26,7 +26,8 @@
 // extern void system_call_func();
 // extern int32_t halt_handler(uint8_t status);
 // extern int32_t execute_handler(const uint8_t* command);
-
+// current process number
+extern int cur_process_number;
 /*read system call's handler*/
 extern int32_t read_handler(int32_t fd, void* buf, int32_t nbytes);
 /*write system call's handler*/
@@ -54,8 +55,9 @@ extern int32_t sigreturn_handler(void);
 extern void system_calls_init();
 /* get the pcb pointer*/
 extern uint32_t get_pcb_ptr();
-
+extern void set_pcb_ptr(pcb_t* new_pcb_ptr);
 extern int32_t execute_shell();
 
+extern void set3shells_helper();
 #endif
 #endif

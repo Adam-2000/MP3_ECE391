@@ -56,5 +56,7 @@ enum signums {
 	NUM_SIGNALS
 };
 
+extern void set3shells();
+extern void PIT_handler();
 #endif
 #endif

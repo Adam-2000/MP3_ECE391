@@ -51,6 +51,7 @@ void idt_init(){
         // as interrupt type
         idt[i].reserved3 = 0;
     }
+    SET_IDT_ENTRY(idt[TIMER_CHIP_INT_INDEX], timer_chip);
     SET_IDT_ENTRY(idt[KEYBOARD_INT_INDEX], keyboard);
 	SET_IDT_ENTRY(idt[RTC_INT_INDEX], real_time_clock);
     // set system call

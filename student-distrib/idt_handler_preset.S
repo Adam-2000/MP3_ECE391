@@ -44,6 +44,7 @@ name:                                   ;\
     sti             ;\
     iret
 
+handlr_1_interrput(timer_chip, PIT_handler);
 //handlr_1_interrput(timer_chip,      timer_chip_func)
 handlr_1_interrput(keyboard,        keyboard_handler)
 //handlr_1_interrput(serial_port,     serial_port_func)
