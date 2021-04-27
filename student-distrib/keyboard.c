@@ -16,6 +16,9 @@
 #define SHIFT_R 0x36
 #define ALT 0x38
 #define CAPSLOCK 0x3A
+#define F1 0x3B
+#define F2 0x3C
+#define F3 0x3D
 
 #define KEYBOARD_SPECTIAL 0xE0
 #define UP 0x48
@@ -30,7 +33,7 @@ static char keymap[KEY_NUM] = {
     '\0', '\0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\0', '\0',
 	'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\0', '\0', 'a', 's',
 	'd', 'f', 'g', 'h', 'j', 'k', 'l' , ';', '\'', '`', '\0', '\\', 'z', 'x', 'c', 'v', 
-	'b', 'n', 'm',',', '.', '/', '\0', '\0', '\0', ' ', '\0'
+	'b', 'n', 'm',',', '.', '/', '\0', '\0', '\0', ' ', '\0', '\0', '\0', '\0'
 };
 
 /*Special key pad with SHIFT or CTRL*/
@@ -230,6 +233,21 @@ void keyboard_handler(){
             case CAPSLOCK:          // change the capital state
                 key_status.capital_status ^= 1;
                 break;
+            case F1:
+                if(key_status.alt || key_status.alt_r){
+                    switch_terminal(0);
+                }
+                break;
+            case F2:
+                if(key_status.alt || key_status.alt_r){
+                    switch_terminal(1);
+                }
+                break;
+            case F3:
+                if(key_status.alt || key_status.alt_r){
+                    switch_terminal(2);
+                }
+                break;
             case BACKSPACE:
                 if (key_buffer_ptr->enable){
                     if (key_buffer_ptr->cnt > 0){
@@ -255,6 +273,16 @@ END:
     sti();
     return;
 }
+
+int32_t switch_terminal(int32_t terminal_id){
+    memcpy((void*)(VEDIO_MEM + (terminals.idx_on_screen + 1) * PAGE_SIZE_SMALL), (void*)VEDIO_MEM, PAGE_SIZE_SMALL);
+    terminals.idx_on_screen = (int)terminal_id;
+    memcpy((void*)VEDIO_MEM, (void*)(VEDIO_MEM + (terminals.idx_on_screen + 1) * PAGE_SIZE_SMALL), PAGE_SIZE_SMALL);
+    return 0;
+}
+
+
+
 
 /*
  *	Function: keyboard_open
