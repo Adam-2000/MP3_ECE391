@@ -170,9 +170,8 @@ int32_t execute_helper(const uint8_t* command){
 }
 
 void set3shells_helper(){
-    //printf("IN FUNCTION: EXECUTE_HELPER, %s\n", command);
     int ret;
-    int i;
+    int i, j;
     dentry_t tem_dentry;
     uint8_t filename[FILENAMESIZE + 1] = "shell";
     uint32_t magic = 0;
@@ -208,7 +207,7 @@ void set3shells_helper(){
     //find new process number
     for (i = 3; i >= 1; i--){
         if (process_number_array[i] == 1){
-            printf("Error: set3shells_helper: why pid assigned?\n");
+            printf("Error: set3shells_helper: why pid assigned: %d %d?\n", i);
         }
         new_process_number = i;
         process_number_array[i] = 1;
@@ -221,8 +220,8 @@ void set3shells_helper(){
         new_pcb_ptr->parent_process_number = 0;
         new_pcb_ptr->eip_val = virtual_addr_1instr;
         new_pcb_ptr->ebp_val = new_pcb_ptr->esp_val = IMG_BIG_START + PAGE_SIZE_BIG - 4;
-        for (i = 0; i < 6; i++){
-            new_pcb_ptr->fda[i].fop = NULL;
+        for (j = 0; j < 6; j++){
+            new_pcb_ptr->fda[j].fop = NULL;
         }
         // load new arguments
         strncpy((int8_t*)new_pcb_ptr->args, (int8_t*)"", ARG_BUF_SIZE);

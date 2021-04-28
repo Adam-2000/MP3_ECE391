@@ -27,11 +27,9 @@
 #define handlr_1_interrput(name, function)    \
     .globl name                            ;\
 name:                                  ;\
-    cli                 ;\
     push_all_reg    ;\
     call function   ;\
     pop_all_reg     ;\
-    sti         ;\
     iret 
 
 #define handlr_1_exception(name, function)  \

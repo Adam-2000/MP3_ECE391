@@ -103,8 +103,9 @@ void set_paging_directory(uint32_t phy_addr){
     if (phy_addr == NULL){
         return;
     }
+    uint32_t flag;
     int i = USER_PAGE_ADDR/ALINED_4K/NUM_ENTRY;
-    cli();
+    cli_and_save(flag);
     page_directory[i].present = 1;
     page_directory[i].r_w = 1;
     page_directory[i].u_s = 1; 
@@ -116,7 +117,7 @@ void set_paging_directory(uint32_t phy_addr){
     page_directory[i].table_addr = (phy_addr/ALINED_4K/NUM_ENTRY)<<10;
 
     reload_cr3((int)page_directory);
-    sti();
+    restore_flags(flag);
     //printf("SET PAGING DIRECTORY: %x\n", phy_addr);
 }
 

@@ -15,24 +15,24 @@
 execute_handler:
     pushl %ebp
     movl  %esp, %ebp
-    //parse args
+    # parse args
     movl  8(%ebp), %ebx
     pushl %ebx
     call execute_helper
     addl $4, %esp
-    //get new pcb
+    # get new pcb
     cmpl $-1, %eax
     je end_execute_handler
     movl %eax, %edi
-    //get old pcb
+    # get old pcb
     movl $ESP_PCB_MASK, %esi
     andl %esp, %esi
-    // store reg value to old pcb
+    # store reg value to old pcb
     movl $check_bottom_shell, EIP_VAL(%esi)
     movl %esp, ESP_VAL(%esi)
     movl %ebp, EBP_VAL(%esi)
 fake_iret:
-    // push iret context
+    # push iret context
     pushl $USER_DS
     pushl ESP_VAL(%edi)
     pushfl
@@ -53,10 +53,10 @@ set3shells:
     pushl %ebp
     movl  %esp, %ebp
     call set3shells_helper
-    //get old pcb
+    # get old pcb
     movl $ESP_PCB_MASK, %esi
     andl %esp, %esi
-    // store reg value to old pcb
+    # store reg value to old pcb
     movl $check_bottom_shell, EIP_VAL(%esi)
     movl %esp, ESP_VAL(%esi)
     movl %ebp, EBP_VAL(%esi)
@@ -66,31 +66,47 @@ set3shells:
 
 start_flag:
     .long 0
+visit_flag:
+    .long 0
 
 PIT_handler:
     pushl %ebp
     movl  %esp, %ebp
-
     call PIT_handler_helper
-    //get new pcb
+    # get new pcb
     cmpl $0, %eax
     je end_PIT_handler
     movl %eax, %edi
 
     cmpl $0, start_flag
     jne PIT_save
+    sti
     movl $1, start_flag
     jmp fake_iret
+    
 PIT_save:
-    //get old pcb
+    # get old pcb
     movl $ESP_PCB_MASK, %esi
     andl %esp, %esi
-    // store reg value to old pcb
+    # store reg value to old pcb
     movl $end_PIT_handler, EIP_VAL(%esi)
     movl %esp, ESP_VAL(%esi)
     movl %ebp, EBP_VAL(%esi)
+
+    pushl %ebx
+    movl visit_flag, %ebx
+    cmpl $2, %ebx
+    je PIT_restore
+    addl $1, %ebx
+    movl %ebx, visit_flag
+    popl %ebx
+    sti
+    jmp fake_iret
+
 PIT_restore:
-    // push iret context
+    popl %ebx
+    # retore next pcb info
+    movl EBP_VAL(%edi), %ebp
     movl ESP_VAL(%edi), %esp
     jmp *EIP_VAL(%edi)
 

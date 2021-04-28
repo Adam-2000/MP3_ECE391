@@ -39,6 +39,7 @@ int32_t rtc_open(const uint8_t* filename){
 void RTC_handler(void){
     //printf("int rtc handler: %d\n", rtc_counter);
     /* connect the port of RegC */
+    cli();
     outb(REGC_OFF,PORT_70);
     /* just read the data */
     inb(PORT_CMOS);
@@ -47,7 +48,7 @@ void RTC_handler(void){
     rtc_counter %= CNT_MAX;
     //test_interrupts();
     send_eoi(IRQ_RTC_NUM);
-
+    sti();
 }
 
 /* int32_t rtc_write()
