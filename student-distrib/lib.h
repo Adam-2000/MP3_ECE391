@@ -9,6 +9,7 @@
 #ifndef ASM
 int32_t printf(int8_t *format, ...);
 void putc(uint8_t c);
+void putc_on(uint8_t c);
 int32_t removec();
 int32_t set_cursor(uint32_t x, uint32_t y);
 int32_t set_video_mem(uint32_t new_video_mem);

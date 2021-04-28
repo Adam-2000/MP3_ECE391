@@ -8,9 +8,13 @@
 #define NUM_ROWS    25
 #define ATTRIB      0x7
 
-static int screen_x;
-static int screen_y;
-static char* video_mem = (char *)0xB8000;
+//static int screen_x;
+//static int screen_y;
+//static char* video_mem = (char *)0xB8000;
+static char* video_mems[4] = {
+    (char *)0xB8000, (char *)0xB9000, (char *)0xBA000, (char *)0xBB000
+};
+extern terminals_info_t terminals;
 
 static void upscroll();
 
@@ -20,10 +24,12 @@ static void upscroll();
  * Function: Clears video memory */
 void clear(void) {
     int32_t i;
+    char* video_mem = video_mems[0];
     for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
     }
+    set_cursor(0, 0);
 }
 
 /* Standard printf().
@@ -170,33 +176,75 @@ int32_t puts(int8_t* s) {
  * Return Value: void
  *  Function: Output a character to the console */
 void putc(uint8_t c) {
+    uint32_t flags;
+    cli_and_save(flags);
+    int ida = terminals.idx_active;
+    int id = (ida == terminals.idx_on_screen) ? 0 : (ida + 1);
+    restore_flags(flags);
+    char* video_mem = video_mems[id];
+    uint32_t* screen_x_ptr = &terminals.terminal[ida].screen_x;
+    uint32_t* screen_y_ptr = &terminals.terminal[ida].screen_y;
     if(c == '\n' || c == '\r') {
-        if(screen_y == NUM_ROWS - 1){
-            upscroll();
+        if(*screen_y_ptr == NUM_ROWS - 1){
+            upscroll(0);
         } else {
-            screen_y++;
+            (*screen_y_ptr)++;
         }
-        screen_x = 0;
+        *screen_x_ptr = 0;
     } else {
-        if(screen_x == NUM_COLS - 1 && screen_y == NUM_ROWS - 1){
-            upscroll();
-            screen_y--;
+        if(*screen_x_ptr == NUM_COLS - 1 && *screen_y_ptr == NUM_ROWS - 1){
+            upscroll(0);
+            (*screen_y_ptr)--;
         }
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
-        screen_x++;
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
-        screen_x %= NUM_COLS;
+        *(uint8_t *)(video_mem + ((NUM_COLS * *screen_y_ptr + *screen_x_ptr) << 1)) = c;
+        *(uint8_t *)(video_mem + ((NUM_COLS * *screen_y_ptr + *screen_x_ptr) << 1) + 1) = ATTRIB;
+        (*screen_x_ptr)++;
+        *screen_y_ptr = (*screen_y_ptr + (*screen_x_ptr / NUM_COLS)) % NUM_ROWS;
+        *screen_x_ptr %= NUM_COLS;
     }
-    update_cursor(screen_x, screen_y);
+    if (!id){
+        update_cursor();
+    }
+}
+
+void putc_on(uint8_t c) {
+    int ida = terminals.idx_on_screen;
+    char* video_mem = video_mems[0];
+    uint32_t* screen_x_ptr = &terminals.terminal[ida].screen_x;
+    uint32_t* screen_y_ptr = &terminals.terminal[ida].screen_y;
+    if(c == '\n' || c == '\r') {
+        if(*screen_y_ptr == NUM_ROWS - 1){
+            upscroll(1);
+        } else {
+            (*screen_y_ptr)++;
+        }
+        *screen_x_ptr = 0;
+    } else {
+        if(*screen_x_ptr == NUM_COLS - 1 && *screen_y_ptr == NUM_ROWS - 1){
+            upscroll(1);
+            (*screen_y_ptr)--;
+        }
+        *(uint8_t *)(video_mem + ((NUM_COLS * *screen_y_ptr + *screen_x_ptr) << 1)) = c;
+        *(uint8_t *)(video_mem + ((NUM_COLS * *screen_y_ptr + *screen_x_ptr) << 1) + 1) = ATTRIB;
+        (*screen_x_ptr)++;
+        *screen_y_ptr = (*screen_y_ptr + (*screen_x_ptr / NUM_COLS)) % NUM_ROWS;
+        *screen_x_ptr %= NUM_COLS;
+    }
+    update_cursor();
 }
 
 /* void upscroll();
  * Inputs: none
  * Return Value: none
  *  Function: upscroll the screen */
-static void upscroll(){
+static void upscroll(int on){
     int i;
+    uint32_t flags;
+    int id;
+    cli_and_save(flags);
+    id = (on || (terminals.idx_active == terminals.idx_on_screen)) ? 0 : (terminals.idx_active + 1);
+    restore_flags(flags);
+    char* video_mem = video_mems[id];
     for(i = 0; i < NUM_ROWS - 1; i++){
         memcpy((uint8_t *)(video_mem + (NUM_COLS * i << 1)), (uint8_t *)(video_mem + (NUM_COLS * (i + 1) << 1)), NUM_COLS * 2);      
     }
@@ -211,20 +259,25 @@ static void upscroll(){
  * Return Value: 0 if success; -1 if fail
  *  Function: Remove the last character from the console */
 int32_t removec(){
-    if(screen_x == 0){
-        if(screen_y == 0){
+    int ida;
+    ida = terminals.idx_on_screen;
+    char* video_mem = video_mems[0];
+    uint32_t* screen_x_ptr = &terminals.terminal[ida].screen_x;
+    uint32_t* screen_y_ptr = &terminals.terminal[ida].screen_y;
+    if(*screen_x_ptr == 0){
+        if(*screen_y_ptr == 0){
             return -1;
         }
-        screen_x = NUM_COLS - 1;
-        screen_y--;
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+        *screen_x_ptr = NUM_COLS - 1;
+        (*screen_y_ptr)--;
+        *(uint8_t *)(video_mem + ((NUM_COLS * *screen_y_ptr + *screen_x_ptr) << 1)) = ' ';
+        *(uint8_t *)(video_mem + ((NUM_COLS * *screen_y_ptr + *screen_x_ptr) << 1) + 1) = ATTRIB;
         update_cursor();
         return 0;
     }
-    screen_x--;
-    *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
-    *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+    (*screen_x_ptr)--;
+    *(uint8_t *)(video_mem + ((NUM_COLS * *screen_y_ptr + *screen_x_ptr) << 1)) = ' ';
+    *(uint8_t *)(video_mem + ((NUM_COLS * *screen_y_ptr + *screen_x_ptr) << 1) + 1) = ATTRIB;
     update_cursor();
     return 0;
 }
@@ -237,27 +290,29 @@ int32_t set_cursor(uint32_t x, uint32_t y){
     if (x >= NUM_COLS || y >= NUM_ROWS){
         return -1;
     }
-    screen_x = x;
-    screen_y = y;
+    int ida;
+    ida = terminals.idx_on_screen;
+    terminals.terminal[ida].screen_x = x;
+    terminals.terminal[ida].screen_y = y;
     update_cursor();
     return 0;
 }
 
-int32_t set_video_mem(uint32_t new_video_mem){
-    if (new_video_mem == NULL || (new_video_mem & 0xFFF) != 0){
-        return -1;
-    }
-    video_mem = (char*)new_video_mem;
-    return 0;
-}
+// int32_t set_video_mem(uint32_t new_video_mem){
+//     if (new_video_mem == NULL || (new_video_mem & 0xFFF) != 0){
+//         return -1;
+//     }
+//     video_mem = (char*)new_video_mem;
+//     return 0;
+// }
 
 
 uint32_t get_cursor_x(){
-    return screen_x;
+    return terminals.terminal[terminals.idx_on_screen].screen_x;
 }
 
 uint32_t get_cursor_y(){
-    return screen_y;
+    return terminals.terminal[terminals.idx_on_screen].screen_y;
 }
 
 
@@ -272,7 +327,10 @@ void enable_cursor(uint8_t cursor_start, uint8_t cursor_end)
 #define VGA_WIDTH 80
 void update_cursor()
 {
-	uint16_t pos = screen_y * VGA_WIDTH + screen_x;
+    int ida;
+    ida = terminals.idx_on_screen;
+
+	uint16_t pos = terminals.terminal[ida].screen_y * VGA_WIDTH + terminals.terminal[ida].screen_x;
  
 	outb(0x0F, 0x3D4);
 	outb((uint8_t) (pos & 0xFF), 0x3D5);
@@ -571,6 +629,6 @@ int8_t* strncpy(int8_t* dest, const int8_t* src, uint32_t n) {
 void test_interrupts(void) {
     int32_t i;
     for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
-        video_mem[i << 1]++;
+        video_mems[0][i << 1]++;
     }
 }

@@ -176,7 +176,7 @@ void keyboard_handler(){
                 if (key_char == 'l' && (key_status.ctrl | key_status.ctrl_r)){
                     //key_buffer.cnt = 0;
                     clear();
-                    set_cursor(0, 0);
+                    //set_cursor(0, 0);
                     goto END;
                 }
                 // capitalize characters
@@ -192,7 +192,7 @@ void keyboard_handler(){
                 if (key_buffer_ptr->enable){
                     key_buffer_ptr->buffer[key_buffer_ptr->cnt++] = key_char;
                 }
-                putc(key_char);
+                putc_on(key_char);
             }
             
             goto END;
@@ -204,7 +204,7 @@ void keyboard_handler(){
                     if (key_buffer_ptr->enable){
                         key_buffer_ptr->buffer[key_buffer_ptr->cnt++] = '\n';
                     }
-                    putc('\n');
+                    putc_on('\n');
                 }
                 break;
             case TAB:               // put 4 space 
@@ -215,7 +215,7 @@ void keyboard_handler(){
                     if (key_buffer_ptr->enable){
                         key_buffer_ptr->buffer[key_buffer_ptr->cnt++] = ' ';
                     }
-                    putc(' ');
+                    putc_on(' ');
                 }
                 break;
             case SHIFT:
@@ -320,7 +320,7 @@ int32_t terminal_open(const uint8_t* filename){
  *	effects:	Include buffer contents copy
  */
 int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
-    printf("reading: %d", terminals.idx_active);
+    printf("[%d]>>", terminals.idx_active);
     int32_t nbytes_read;
     keyboard_buffer_struct_t* key_buffer_ptr = &terminals.terminal[terminals.idx_active].key_buffer;
     key_buffer_ptr->cnt = 0;
