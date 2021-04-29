@@ -475,7 +475,9 @@ int32_t vidmap_handler(uint8_t** screen_start){
         printf("INVALID ARGUMENT screen start: %x\n", (uint32_t)screen_start);
         return -1;
     }
-    set_vedio_paging(VEDIO_PAGES_START);
+    int mem_id;
+    mem_id = (terminals.idx_active == terminals.idx_on_screen) ? 0 : (terminals.idx_active + 1);
+    set_vedio_paging(VEDIO_PAGES_START, mem_id);
     *screen_start = (uint8_t*) VEDIO_PAGES_START;
     return 0;
 }

@@ -12,7 +12,7 @@ void putc(uint8_t c);
 void putc_on(uint8_t c);
 int32_t removec();
 int32_t set_cursor(uint32_t x, uint32_t y);
-int32_t set_video_mem(uint32_t new_video_mem);
+//int32_t set_video_mem(uint32_t new_video_mem);
 uint32_t get_cursor_x();
 uint32_t get_cursor_y();
 int32_t puts(int8_t *s);

@@ -16,7 +16,7 @@ static char* video_mems[4] = {
 };
 extern terminals_info_t terminals;
 
-static void upscroll();
+static void upscroll(int on);
 
 /* void clear(void);
  * Inputs: void

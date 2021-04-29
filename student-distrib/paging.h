@@ -57,6 +57,7 @@ extern void paging_init(void);
 /*set a page directory for new physical address*/
 extern void set_paging_directory(uint32_t phy_addr);
 /*set a virtual address to the video page*/
-void set_vedio_paging(uint32_t virtual_addr);
+void set_vedio_paging(uint32_t virtual_addr, int mem_id);
+void set_vedio_pageoff(uint32_t virtual_addr);
 #endif
 #endif

@@ -128,13 +128,14 @@ void set_paging_directory(uint32_t phy_addr){
  *   OUTPUTS: none
  *   RETURN VALUE: none
  */
-void set_vedio_paging(uint32_t virtual_addr){
+void set_vedio_paging(uint32_t virtual_addr, int mem_id){
     int idx;
     if (virtual_addr == NULL || (virtual_addr & DIRECTORY_MASK) != VEDIO_PAGES_START){
         printf("wrong virtual address when set paging: %x\n", virtual_addr);
         return;
     }
-    cli();
+    uint32_t flags;
+    cli_and_save(flags);
     idx = virtual_addr & TABLE_MASK >> PDE_RESERVE_FOR4KB;
     // set the target vedio memory page as present 
     page_table_video[idx].present        = 1;
@@ -146,9 +147,25 @@ void set_vedio_paging(uint32_t virtual_addr){
     page_table_video[idx].dirty          = 0;
     page_table_video[idx].pat_alw_zero   = 0;
     page_table_video[idx].global_bit     = 0; 
-    page_table_video[idx].page_addr      = VEDIO_MEM >> PDE_RESERVE_FOR4KB; 
+    page_table_video[idx].page_addr      = (VEDIO_MEM + PAGE_SIZE_SMALL * mem_id) >> PDE_RESERVE_FOR4KB; 
     reload_cr3((int)page_directory);
-    sti();
+    restore_flags(flags);
+    //printf("SET VEDIO PAGE TABLE: %x\n", virtual_addr);
+}
+
+void set_vedio_pageoff(uint32_t virtual_addr){
+    int idx;
+    if (virtual_addr == NULL || (virtual_addr & DIRECTORY_MASK) != VEDIO_PAGES_START){
+        printf("wrong virtual address when set paging: %x\n", virtual_addr);
+        return;
+    }
+    uint32_t flags;
+    cli_and_save(flags);
+    idx = virtual_addr & TABLE_MASK >> PDE_RESERVE_FOR4KB;
+    // set the target vedio memory page as present 
+    page_table_video[idx].present        = 0;
+    reload_cr3((int)page_directory);
+    restore_flags(flags);
     //printf("SET VEDIO PAGE TABLE: %x\n", virtual_addr);
 }
 /*
