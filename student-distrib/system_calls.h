@@ -56,7 +56,21 @@ enum signums {
 	NUM_SIGNALS
 };
 
+/*
+ *	Function: set3shells
+ *	Description: set three shells, put the program image on proper 4MB pages, set there pcbs for initialization
+ *	inputs:		None
+ *	outputs:	None
+ *	effects:	None
+ */
 extern void set3shells();
+/*
+ *	Function: PIT_handler
+ *	Description: The pit instruction handler
+ *	inputs:		None
+ *	outputs:	None
+ *	effects:	None
+ */
 extern void PIT_handler();
 #endif
 #endif

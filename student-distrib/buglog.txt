@@ -99,4 +99,27 @@ Problem: Cannot correctly assign a new image page (page fault exception when exe
 Mistake: modified the old page table for 0-4MB
 Solution: use a new page table for vedio mapping.
 
+Date: 2021.04.27
+Handler: Chen Yize
+Problem: Cannot continue to have pit interrupt after execution
+Mistake: Did not sti before interrupted into fake iret
+Solution: do sti before interrupted into fake iret
+
+Date: 2021.04.28
+Handler: Chen Yize
+Problem: Cannot go into proper stack position when first into the second terminal
+Mistake: Did not go into fake iret when first go into second terminal
+Solution: go into fake iret when first go into second terminal
+
+Date: 2021.04.28
+Handler: Chen Yize
+Problem: Fish appears on every screen.
+Mistake: when doing vidmap, always assign the same physical address for it
+Solution: remap the video memory when going into each process
+
+Date: 2021.04.28
+Handler: Chen Yize
+Problem: Input text sometimes appears in other terminals 
+Mistake: input text are put in the back running terminal
+Solution: make a function just for keyboard input. And put the character to proper memory (4kB Block) for each process.
 

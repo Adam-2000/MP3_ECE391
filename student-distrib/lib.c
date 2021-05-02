@@ -11,6 +11,7 @@
 //static int screen_x;
 //static int screen_y;
 //static char* video_mem = (char *)0xB8000;
+// four video memory starting address
 static char* video_mems[4] = {
     (char *)0xB8000, (char *)0xB9000, (char *)0xBA000, (char *)0xBB000
 };
@@ -176,6 +177,7 @@ int32_t puts(int8_t* s) {
  * Return Value: void
  *  Function: Output a character to the console */
 void putc(uint8_t c) {
+    // get new video_mem, screen_x and screen_y for each process
     uint32_t flags;
     cli_and_save(flags);
     int ida = terminals.idx_active;
@@ -207,6 +209,10 @@ void putc(uint8_t c) {
     }
 }
 
+/* void putc_on(uint8_t c);
+ * Inputs: uint_8* c = character to print
+ * Return Value: void
+ *  Function: Output a character to the console, just for keyboard inputs */
 void putc_on(uint8_t c) {
     int ida = terminals.idx_on_screen;
     char* video_mem = video_mems[0];
@@ -242,6 +248,7 @@ static void upscroll(int on){
     uint32_t flags;
     int id;
     cli_and_save(flags);
+    // get new video_mem, screen_x and screen_y for each process
     id = (on || (terminals.idx_active == terminals.idx_on_screen)) ? 0 : (terminals.idx_active + 1);
     restore_flags(flags);
     char* video_mem = video_mems[id];
@@ -259,6 +266,7 @@ static void upscroll(int on){
  * Return Value: 0 if success; -1 if fail
  *  Function: Remove the last character from the console */
 int32_t removec(){
+    // get new video_mem, screen_x and screen_y for each process
     int ida;
     ida = terminals.idx_on_screen;
     char* video_mem = video_mems[0];
@@ -291,6 +299,7 @@ int32_t set_cursor(uint32_t x, uint32_t y){
         return -1;
     }
     int ida;
+    // get new video_mem, screen_x and screen_y for each process
     ida = terminals.idx_on_screen;
     terminals.terminal[ida].screen_x = x;
     terminals.terminal[ida].screen_y = y;
@@ -306,16 +315,25 @@ int32_t set_cursor(uint32_t x, uint32_t y){
 //     return 0;
 // }
 
-
+/* void get_cursor_x;
+ * Inputs: none
+ * Return Value: the curse's x position
+ *  Function: get the curse's x position */
 uint32_t get_cursor_x(){
     return terminals.terminal[terminals.idx_on_screen].screen_x;
 }
-
+/* void get_cursor_y;
+ * Inputs: none
+ * Return Value: the curse's y position
+ *  Function: get the curse's y position */
 uint32_t get_cursor_y(){
     return terminals.terminal[terminals.idx_on_screen].screen_y;
 }
 
-
+/* void enable_cursor;
+ * Inputs: none
+ * Return Value: none
+ *  Function: enable the blinking cursor */
 void enable_cursor(uint8_t cursor_start, uint8_t cursor_end)
 {
 	outb(0x0A, 0x3D4);
@@ -325,6 +343,10 @@ void enable_cursor(uint8_t cursor_start, uint8_t cursor_end)
 	outb((inb(0x3D5) & 0xE0) | cursor_end, 0x3D5);
 }
 #define VGA_WIDTH 80
+/* void update_cursor;
+ * Inputs: none
+ * Return Value: none
+ *  Function: update cursor's position */
 void update_cursor()
 {
     int ida;

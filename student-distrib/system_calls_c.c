@@ -205,7 +205,7 @@ void set3shells_helper(){
     }
     //printf("IN FUNCTION: EXECUTE_HELPER: VIRTUAL ADDR GET!: %x\n", virtual_addr_1instr);
     //find new process number
-    for (i = 3; i >= 1; i--){
+    for (i = N_TERMINAL; i >= 1; i--){
         if (process_number_array[i] == 1){
             printf("Error: set3shells_helper: why pid assigned: %d %d?\n", i);
         }

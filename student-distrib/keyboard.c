@@ -43,7 +43,7 @@ static char shifted_keymap[KEY_NUM] = {
 	'D', 'F', 'G', 'H', 'J', 'K', 'L' , ':', '"', '~', '\0', '|', 'Z', 'X', 'C', 'V', 
 	'B', 'N', 'M','<', '>', '?', '\0', '\0', '\0', ' ', '\0'
 };
-
+// global
 terminals_info_t terminals;
 
 /*Basic keyboard status structure*/
@@ -82,7 +82,7 @@ void init_keyboard() {
         memcpy((void*)(VEDIO_MEM + (i + 1) * PAGE_SIZE_SMALL), (void*)VEDIO_MEM, PAGE_SIZE_SMALL);
     }
     terminals.idx_on_screen = 0;
-    terminals.idx_active = 5;
+    terminals.idx_active = -1;
     key_state.val = 0;
     enable_cursor(14, 15);
 	enable_irq(IRQ_KEYBOARD);
@@ -233,6 +233,7 @@ void keyboard_handler(){
             case CAPSLOCK:          // change the capital state
                 key_status.capital_status ^= 1;
                 break;
+            // switch terminals for alt+fn
             case F1:
                 if(key_status.alt || key_status.alt_r){
                     switch_terminal(0);
@@ -274,6 +275,13 @@ END:
     return;
 }
 
+/*
+ *	Function: switch_terminal
+ *	Description: switch the screen to the new terminal
+ *	inputs:		terminal_id -- the new terminal index on screen after switching
+ *	outputs:	0 for success
+ *	effects:	switch the screen to the new terminal
+ */
 int32_t switch_terminal(int32_t terminal_id){
     memcpy((void*)(VEDIO_MEM + (terminals.idx_on_screen + 1) * PAGE_SIZE_SMALL), (void*)VEDIO_MEM, PAGE_SIZE_SMALL);
     terminals.idx_on_screen = (int)terminal_id;

@@ -1,6 +1,7 @@
 #include "idt_setup.h"
 /* 
- *head
+ * idt_init
+ * initialize the idt
  */
 void idt_init(){
     int i;

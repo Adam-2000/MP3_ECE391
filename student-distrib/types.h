@@ -10,6 +10,7 @@
 #define NULL 0
 #define ARG_BUF_SIZE 1024
 #define SIZE_KEYBOARD_BUFFER 128
+#define N_TERMINAL 3
 
 #ifndef ASM
 
@@ -23,6 +24,7 @@ typedef unsigned short uint16_t;
 typedef char int8_t;
 typedef unsigned char uint8_t;
 
+/*function operations table*/
 typedef struct fop_table{
     int32_t (*read) (int32_t fd, void* buf, int32_t nbytes);
     int32_t (*write)(int32_t fd, const void* buf, int32_t nbytes);
@@ -38,6 +40,7 @@ typedef struct file_descriptor{
     uint32_t flags;
 }file_descriptor_t;
 
+/*pcb struct*/
 typedef struct pcb{
     uint32_t eip_val;
     uint32_t esp_val;
@@ -56,6 +59,7 @@ typedef struct keyboard_buffer_struct{
     //uint32_t cursor; // this saves for cursor operation // don't delete
 } keyboard_buffer_struct_t;
 
+/*terminal struct for each terminal*/
 typedef struct terminal_info{
     keyboard_buffer_struct_t key_buffer;
     uint32_t screen_x;
@@ -64,11 +68,11 @@ typedef struct terminal_info{
     int pid;
 } terminal_info_t;
 
-
+/* a struct, globle, terminals information*/
 typedef struct terminals_info{
-    int idx_on_screen;
-    int idx_active;
-    terminal_info_t terminal[3];
+    int idx_on_screen;   // the showing terminal index
+    int idx_active;      // the back running terminal index
+    terminal_info_t terminal[N_TERMINAL];
 } terminals_info_t;
 #endif /* ASM */
 

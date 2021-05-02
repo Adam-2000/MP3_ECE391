@@ -13,7 +13,9 @@
 
 #ifndef ASM
 
+// initialize the pit, and enable interrput
 extern void pit_init();
+// C function in pit handler
 extern int32_t PIT_handler_helper();
 
 

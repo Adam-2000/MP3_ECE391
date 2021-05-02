@@ -78,6 +78,7 @@ PIT_handler:
     je end_PIT_handler
     movl %eax, %edi
 
+    // check if no terminals have been opened
     cmpl $0, start_flag
     jne PIT_save
     sti
@@ -93,8 +94,10 @@ PIT_save:
     movl %esp, ESP_VAL(%esi)
     movl %ebp, EBP_VAL(%esi)
 
+    // check if we need to open a new terminal
     pushl %ebx
     movl visit_flag, %ebx
+    # because we have 2 more terminals to open
     cmpl $2, %ebx
     je PIT_restore
     addl $1, %ebx

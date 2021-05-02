@@ -153,6 +153,13 @@ void set_vedio_paging(uint32_t virtual_addr, int mem_id){
     //printf("SET VEDIO PAGE TABLE: %x\n", virtual_addr);
 }
 
+/*
+ * set_vedio_pageoff
+ *   DESCRIPTION: turn off a page
+ *   INPUTS: virtual_addr -- the virtual address of the new page for video 
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ */
 void set_vedio_pageoff(uint32_t virtual_addr){
     int idx;
     if (virtual_addr == NULL || (virtual_addr & DIRECTORY_MASK) != VEDIO_PAGES_START){

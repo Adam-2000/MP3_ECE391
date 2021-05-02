@@ -27,6 +27,7 @@ extern void init_keyboard();
 /* Keyboard handlers */
 extern void keyboard_handler();
 
+/* terminal's syscalls*/
 extern int32_t terminal_open(const uint8_t* filename);
 
 extern int32_t terminal_read(int32_t fd, void* buffer, int32_t nbytes);
@@ -35,6 +36,7 @@ extern int32_t terminal_write(int32_t fd, const void* buffer, int32_t nbytes);
 
 extern int32_t terminal_close(int32_t fd);
 
+/*Description: switch the screen to the new terminal*/
 extern int32_t switch_terminal(int32_t terminal_id);
 #endif /* ASM */
 
